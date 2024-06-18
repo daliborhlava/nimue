@@ -165,6 +165,8 @@ project.secrets
 emails/data/sample/*.txt
 emails/data/ingest-raw/*.txt
 emails/data/ingest-processed/*.txt
-emails/data/ingest-processed/*.embedding
 emails/data/ingest-processed/*.json
+emails/data/ingest-embedded/*.txt
+emails/data/ingest-embedded/*.json
+emails/data/ingest-embedded/*.embedding
 emails/data/results.json

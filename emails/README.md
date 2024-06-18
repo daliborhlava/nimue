@@ -1,0 +1,8 @@
+- Optional - Obtain mbox (e.g. from Google takeout)
+- Optional - Use tool to convert mbox into email per file (e.g. https://www.recoverytools.com/mbox/migrator/)
+- Put data into data/ingest-raw as individual text files, one file per email
+- Run process.py, which processes files one by one, tags metadata, output goes to ingest-processed. Analytics file is output. Tokens can be counter by token-counter.py. 
+- Run embed.py which embeds the data and puts it to ingest-embedded.
+- Run load.py to finally load data into data from ingest-embedded.
+- Data is now ready to be used.
+- Run email-api.py to expose search capabilities to nimui core.
