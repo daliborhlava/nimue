@@ -50,13 +50,5 @@ collection = client.get_or_create_collection(name=collection_name, embedding_fun
 #     embedding_function=embedding_function,
 # )
 
-query_text = 'kdy jsem naposled koupil mentolove krystaly?'
-
-results = collection.query(
-    query_texts=[query_text],
-    n_results=1
-)
-
-print(results["distances"][0])
-print()
-print(results)
+result = collection.count()
+print(result)

@@ -2,7 +2,7 @@ import os
 import sys
 
 import chromadb
-import numpy as np  # For generating sample embeddings
+import numpy as np
 
 from chromadb import Settings
 
@@ -16,13 +16,16 @@ import openai
 
 import json
 
+from shared import detect_encoding, num_tokens_from_string, tokens_price
+
+collection_name = "temp_collection"
+
 secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
 if os.getenv("OPENAI_API_KEY") is not None:
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    print("OPENAI_API_KEY is set")
 else:
     raise Exception("OPENAI_API_KEY environment variable not found")
 
@@ -33,21 +36,51 @@ embedding_function = embedding_functions.OpenAIEmbeddingFunction(
                 model_name=model
             )
 
+# When would this be used?
+#embeddings = OpenAIEmbeddings(model=model) 
+
 settings = Settings(allow_reset=True, anonymized_telemetry=False)
 client = chromadb.HttpClient(host='192.168.1.51', port=6800, settings=settings)
 
-collection = client.get_or_create_collection(name='temp_collection', embedding_function=embedding_function)
+collection = client.get_or_create_collection(name=collection_name, embedding_function=embedding_function)
 
-langchain_chroma = Chroma(
-    client=client,
-    collection_name="collection_name",
-    embedding_function=embedding_function,
-)
+# langchain_chroma = Chroma(
+#     client=client,
+#     collection_name=collection_name,
+#     embedding_function=embedding_function,
+# )
 
 data_dir = secrets_data["data-dir"]
 for item in os.listdir(data_dir):
     item_path = os.path.join(data_dir, item)
-    print(item_path)  # Prints the path to each item
+
+    encoding = detect_encoding(item_path)
+
+    loader = TextLoader(item_path, encoding=encoding)
+    docs = loader.load()
+
+    doc_ctr = 0
+    original_text = ""
+    for doc in docs:
+        assert doc_ctr == 0, "Only one document per file is supported."
+        original_text += doc.page_content
+
+        # TODO: update metadata here, like from/to/subject for emails
+        # update the metadata for a document
+        # docs[0].metadata = {
+        #     "source": "../../how_to/state_of_the_union.txt",
+        #     "new_value": "hello world",
+        # }
+        doc.metadata['test'] = 'YES'
+
+        collection.add(
+            ids=[item_path], metadatas=doc.metadata, documents=doc.page_content
+        )
+
+        doc_ctr += 1
+
+    
+
 
 sys.exit(-1)
 
