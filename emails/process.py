@@ -63,7 +63,7 @@ for item in sorted_file_list:
 
     contents = None
     with open(item_path, 'r', encoding=encoding) as f:
-        result = f.read()
+        contents = f.read()
 
     if contents is None or contents.strip() == "":
         raise Exception(f"Empty file: {item_path}")
