@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 
 from langchain_community.document_loaders import TextLoader
 
@@ -18,7 +19,8 @@ with open(secrets_file_name, "r") as secrets_file:
 total_tokens = 0
 
 data_dir = secrets_data["data-dir"]
-file_list = os.listdir(data_dir)
+processed_dir = os.path.join(data_dir, 'ingest-processed')
+file_list =  glob.glob(os.path.join(processed_dir, '*.txt'))
 sorted_file_list = sorted(file_list)
 
 ctr = 1
