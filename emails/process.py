@@ -1,22 +1,63 @@
 import os
 import sys
 import hashlib
-
-import numpy as np
-
+import re
 import json
 
+from datetime import datetime
+import pytz
+
+import numpy as np
+import pandas as pd
+
 from shared import detect_encoding
+
+
+def extract_email_info(email_string):
+    """Extracts date, sender, recipient, and subject from an email string."""
+
+    lines = email_string.splitlines()[:5]  # Get first 4 lines
+    
+    # Initialize an empty dictionary to store the extracted data.
+    extracted_data = {}
+
+    # Iterate over the lines in the email string.
+    for line in lines:
+        parts = line.split(':', 1)  # Split on the first colon
+
+        if len(parts) == 2:  # Ensure a colon was found
+            key, value = parts
+            extracted_data[key.strip()] = value.strip().strip('"')  # Clean up and store
+
+    # Handle date and time
+    local_timezone = pytz.timezone('CET')  # TZ for the date in the email. 
+    naive_datetime = datetime.strptime(extracted_data['Date'], "%m/%d/%Y %I:%M:%S %p")
+    local_datetime = local_timezone.localize(naive_datetime)
+    extracted_data['Date (UTC)'] = local_datetime.astimezone(pytz.utc).isoformat()
+
+    return extracted_data
 
 secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
-source_dir = os.path.join(secrets_data["data-dir"], "ingest-raw")
-target_dir = os.path.join(secrets_data["data-dir"], "ingest-processed")
+data_dir = secrets_data["data-dir"]
+source_dir = os.path.join(data_dir, "ingest-raw")
+target_dir = os.path.join(data_dir, "ingest-processed")
 
-for item in os.listdir(source_dir):
+file_list = os.listdir(source_dir)
+sorted_file_list = sorted(file_list)
+
+ctr = 1
+ctr_total = len(sorted_file_list)
+
+pd_data_list = []
+
+for item in sorted_file_list:
     item_path = os.path.join(source_dir, item)
+
+    print(f"{ctr:,}/{ctr_total:,}: {item}")
+    ctr += 1
 
     encoding = detect_encoding(item_path)
 
@@ -34,14 +75,27 @@ for item in os.listdir(source_dir):
 
     if os.path.exists(target_path):
         raise Exception(f"File already exists: {target_path}, source: {item_path}")
+    
+    extracted_data = extract_email_info(contents)
 
     # File name example: 1-3-2017__Jane doe_ _Jane.Doe@example.com__RE_ XXX XX - lorem ipsum
-    from_str = ""
+    from_str = extracted_data['From']
+
     from_email = ""
-    to_str = ""
-    to_email = ""
-    subject = ""
-    date = ""
+    email_pattern = r"_(?P<email>[\w.-]+@[\w-]+\.[\w.-]+)_"
+    match = re.search(email_pattern, item)
+
+    if match:
+        email = match.group(0)
+        print(email)  
+    else:
+        raise Exception("No email found - adjust regex / fix naming options")
+
+    to_str = extracted_data['To']
+    to_email = extracted_data['To']  # Currently no other way to source to.
+    subject = extracted_data['Subject']
+    datetime_utc = extracted_data['Date (UTC)']
+    attachments = extracted_data.get('Attachments', '')
 
     metadata = {
         "source": item,
@@ -50,70 +104,24 @@ for item in os.listdir(source_dir):
         "to": to_email,
         "to_str": to_str,
         "subject": subject,
-        "date": date,
-        "attachment-count": -1,  # TODO, if possible?
+        "datetime_utc": datetime_utc,
+        "attachments": attachments,
+        "attachments-count": len(attachments.split(';')),
         "content-hash": hash,
         "content-length": len(contents),
         "encoding": encoding,
     }
 
-    doc_ctr = 0
-    original_text = ""
-    for doc in docs:
-        assert doc_ctr == 0, "Only one document per file is supported."
-        original_text += doc.page_content
+    with open(target_path, 'w') as f:
+        f.write(contents)
 
-        # TODO: update metadata here, like from/to/subject for emails
-        # update the metadata for a document
-        # docs[0].metadata = {
-        #     "source": "../../how_to/state_of_the_union.txt",
-        #     "new_value": "hello world",
-        # }
-        doc.metadata['test'] = 'YES'
+    metadata_path = os.path.join(target_dir, hash + ".metadata.json")
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
 
-        collection.add(
-            ids=[item_path], metadatas=doc.metadata, documents=doc.page_content
-        )
+    pd_data_list.append(metadata)
 
-        doc_ctr += 1
+csv_path = os.path.join(data_dir, "results.csv")
+pd.DataFrame(pd_data_list).to_csv(csv_path, index=False)
 
-    
-
-
-sys.exit(-1)
-
-
-
-loader = TextLoader("../../how_to/state_of_the_union.txt")
-documents = loader.load()
-
-
-
-
-
-######################33
-
-
-# Sample embeddings (replace with your actual embeddings)
-embeddings = [
-    list(np.random.rand(128).astype(np.float32)),  
-    list(np.random.rand(128).astype(np.float32)),
-    list(np.random.rand(128).astype(np.float32))
-]
-
-# Sample documents (replace with your actual documents)
-documents = ['This is document 1', 'Another document here', 'One more for the road']
-
-# Sample metadata (replace with your actual metadata)
-metadatas = [
-    {'source': 'web', 'topic': 'technology'},
-    {'source': 'book', 'author': 'Jane Doe'},
-    {'source': 'article', 'publication': 'Science Journal'}
-]
-
-# Add embeddings with documents and metadata to the collection
-collection.add(
-    documents=documents,
-    metadatas=metadatas,
-    ids=['id1', 'id2', 'id3']  # Optional: provide unique IDs for your documents
-)
+print('Done!')
