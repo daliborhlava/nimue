@@ -12,6 +12,6 @@
 
 
 * TODO
-- debug form - pseudoheader terminator does not seem to work.
+- create error queue with emails that failed processing instead of termination
 - "attachments": "" get NaN treatment
 - strange "header" keys - finalize list and read only known ones

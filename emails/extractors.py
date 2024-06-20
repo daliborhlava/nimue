@@ -3,6 +3,9 @@ import pytz
 
 import re
 
+KEY_MAX_LENGTH = 15  # Maximum length of a key in the pseudoheader.
+PSEUDOHEADER_SCAN_LINES = 10  # Maximum number of lines in the pseudoheader.
+
 def extract_email_info(email_string):
     """
     Extracts date, sender, recipient, and subject from an email string.
@@ -16,23 +19,24 @@ def extract_email_info(email_string):
     """
 
     lines = email_string.splitlines()
-    pseudoheader = lines[:10]  # Extract the pseudoheader (first x lines containing key : value).
+    pseudoheader = lines[:PSEUDOHEADER_SCAN_LINES]  # Extract the pseudoheader (first x lines containing key : value).
 
     pseudoheader_terminator = 0
     did_break = False
     for line in pseudoheader:
-        if ':' not in line:
+        colon_index = line.find(':')
+        if colon_index == -1 or colon_index > KEY_MAX_LENGTH:
             did_break = True
             break
         pseudoheader_terminator += 1
 
     # Improve: Do not raise generic exceptions. Not needed now.
 
-    if did_break == False:
-        raise Exception("No colon found in the pseudoheader -> increase the search space.")
+    if did_break == False and len(pseudoheader) >= PSEUDOHEADER_SCAN_LINES:
+        raise Exception("No breaker found in the pseudoheader -> increase the search space.")
     
     if pseudoheader_terminator < 3:
-        raise("Too few lines in the pseudoheader -> something wrong?.")
+        raise Exception("Too few lines in the pseudoheader -> something wrong?.")
     
     pseudoheader = pseudoheader[:pseudoheader_terminator]
     
@@ -40,13 +44,13 @@ def extract_email_info(email_string):
     extracted_data = {}
 
     # Iterate over the lines in the email string.
-    for line in lines:
+    for line in pseudoheader:
         parts = line.split(' : ', 1)  # Split on the first colon
 
         if len(parts) == 2:  # Ensure a colon was found
             key, value = parts
 
-            if len(key) > 15:
+            if len(key) > KEY_MAX_LENGTH:
                 continue  # Skip lines that are too long to be keys.
 
             extracted_data[key.strip().lower()] = value.strip().strip('"')  # Clean up and store
@@ -65,9 +69,7 @@ def extract_email_info(email_string):
         if key not in ['date', 'from', 'to', 'subject', 'attachment', 'date (utc)',
                        'cc', 'bcc',
                        # And the weird ones - temp only to ID the proper ones.
-                       '﻿auto time', 'typ', '· upozornění', 'cena celkem', 'firma', 'jméno']:
-            with(open('temp.txt', 'w', encoding='UTF-8 SIG') as f):
-                f.write(email_string)
+                       '﻿auto time', 'typ', '· upozornění', 'cena celkem', 'firma', 'jméno', 'bench']:
             raise Exception(f'Unexpected key: ->{key}<-.')
 
     return extracted_data
