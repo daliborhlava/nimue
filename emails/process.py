@@ -24,6 +24,9 @@ if not os.path.exists(target_dir):
 file_list = glob.glob(os.path.join(source_dir, '*.txt'))
 sorted_file_list = sorted(file_list)
 
+# Temp/optional, for debug.
+sorted_file_list = sorted_file_list[2400:]
+
 ctr = 1
 ctr_total = len(sorted_file_list)
 

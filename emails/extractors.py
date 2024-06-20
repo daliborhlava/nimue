@@ -15,7 +15,26 @@ def extract_email_info(email_string):
     Attachment : vypis_517057_1_20161231.pdf;uroky.pdf;
     """
 
-    lines = email_string.splitlines()[:10]  # Get first 4 lines
+    lines = email_string.splitlines()
+    pseudoheader = lines[:10]  # Extract the pseudoheader (first x lines containing key : value).
+
+    pseudoheader_terminator = 0
+    did_break = False
+    for line in pseudoheader:
+        if ':' not in line:
+            did_break = True
+            break
+        pseudoheader_terminator += 1
+
+    # Improve: Do not raise generic exceptions. Not needed now.
+
+    if did_break == False:
+        raise Exception("No colon found in the pseudoheader -> increase the search space.")
+    
+    if pseudoheader_terminator < 3:
+        raise("Too few lines in the pseudoheader -> something wrong?.")
+    
+    pseudoheader = pseudoheader[:pseudoheader_terminator]
     
     # Initialize an empty dictionary to store the extracted data.
     extracted_data = {}
@@ -27,7 +46,7 @@ def extract_email_info(email_string):
         if len(parts) == 2:  # Ensure a colon was found
             key, value = parts
 
-            if len(key) > 20:
+            if len(key) > 15:
                 continue  # Skip lines that are too long to be keys.
 
             extracted_data[key.strip().lower()] = value.strip().strip('"')  # Clean up and store
@@ -45,8 +64,10 @@ def extract_email_info(email_string):
     for key, val in extracted_data.items():
         if key not in ['date', 'from', 'to', 'subject', 'attachment', 'date (utc)',
                        'cc', 'bcc',
-                       # And the weird ones:
-                       '﻿auto time', 'typ', '· upozornění']:
+                       # And the weird ones - temp only to ID the proper ones.
+                       '﻿auto time', 'typ', '· upozornění', 'cena celkem', 'firma', 'jméno']:
+            with(open('temp.txt', 'w', encoding='UTF-8 SIG') as f):
+                f.write(email_string)
             raise Exception(f'Unexpected key: ->{key}<-.')
 
     return extracted_data
@@ -59,14 +80,13 @@ def extract_mail_metadata_method1(name: str, contents: str):
     """
 
     extracted_data = extract_email_info(contents)
-   
-    # TODO: still captures leading _.
+
     from_email = ""
-    email_pattern = r"_(?P<email>[\w._+-]+@[\w-]+\.[\w.-]+)_"
+    email_pattern = r"_\s*_?(?P<email>[\w._+-]+@[\w-]+\.[\w.-]+)\s*_"
     match = re.search(email_pattern, name)
 
     if match:
-        from_email = match.group(0)
+        from_email = match.group(1)
     else:
         raise Exception("No from email found - adjust regex / fix naming options")
 

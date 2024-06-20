@@ -12,6 +12,6 @@
 
 
 * TODO
+- debug form - pseudoheader terminator does not seem to work.
 - "attachments": "" get NaN treatment
-- double headers from company email
 - strange "header" keys - finalize list and read only known ones
