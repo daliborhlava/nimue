@@ -98,11 +98,14 @@ def extract_email_info_from_contents_method1(email_string):
     
     if pseudoheader_terminator == 1:
         # Special handling for malformed emails where pseudoheader does not break lines.
-        pseudoheader = []
-        s = lines[0].replace('Date :', '\n').replace('From :', '\n').replace('To :', '\n').replace('Subject :', '\n') 
 
-        #TODO
-        1/0
+        # Possibly also CC/BCC handling, but have not seen malformed emails with those yet.
+        s = (lines[0].replace('Date : ', '\nDate : ')
+                .replace('From : ', '\nFrom : ')
+                .replace('To : ', '\nTo : ')
+                .replace('Subject : ', '\nSubject : '))
+
+        pseudoheader = s.splitlines()
 
     elif pseudoheader_terminator < 3:
         raise Exception("Too few lines in the pseudoheader -> something wrong?.")

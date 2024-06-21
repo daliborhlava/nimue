@@ -67,4 +67,4 @@ print()
 total_price = tokens_price(total_tokens, price_per_mil_token)
 print(f"{total_tokens:,} -> {total_price:,} USD")
 
-pd.DataFrame.from_records(df_data).to_csv('tokens.csv', index=False)
+pd.DataFrame.from_records(df_data).to_csv('./analytics/tokens.csv', index=False)
