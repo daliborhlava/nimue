@@ -93,10 +93,6 @@ def extract_email_info_from_contents_method1(email_string):
             did_break = True
             break
         pseudoheader_terminator += 1
-
-    # Improve: Do not raise generic exceptions. Not needed now.
-    if did_break == False and len(pseudoheader) >= PSEUDOHEADER_SCAN_LINES:
-        raise Exception("No breaker found in the pseudoheader -> increase the search space.")
     
     if pseudoheader_terminator == 1:
         # Special handling for malformed emails where pseudoheader does not break lines.

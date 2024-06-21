@@ -8,7 +8,7 @@ import pandas as pd
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 
 # In case resume is needed.
-SKIP_FIRST_FILES = 0
+SKIP_FIRST_FILES = 89200
 
 # Mind the gitignore file if you change this.
 ANALYTICS_PATH = "./analytics"
