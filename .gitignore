@@ -163,3 +163,4 @@ project.secrets
 *.secrets
 
 analytics/*.csv
+analytics/*.log

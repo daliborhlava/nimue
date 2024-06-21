@@ -17,6 +17,9 @@ UNKNOWN = '<missing>'  # Placeholder for unknown values.
 class ProcessorEmptyFileException(Exception):
     pass
 
+class MalformedPseudoheaderException(Exception):
+    pass
+
 
 def process(item_path: str) -> dict:
     encoding = detect_encoding(item_path)
@@ -92,7 +95,6 @@ def extract_email_info_from_contents_method1(email_string):
         pseudoheader_terminator += 1
 
     # Improve: Do not raise generic exceptions. Not needed now.
-
     if did_break == False and len(pseudoheader) >= PSEUDOHEADER_SCAN_LINES:
         raise Exception("No breaker found in the pseudoheader -> increase the search space.")
     
@@ -108,7 +110,7 @@ def extract_email_info_from_contents_method1(email_string):
         pseudoheader = s.splitlines()
 
     elif pseudoheader_terminator < 3:
-        raise Exception("Too few lines in the pseudoheader -> something wrong?.")
+        raise MalformedPseudoheaderException("Too few lines in the pseudoheader -> something wrong?.")
     else:
         pseudoheader = pseudoheader[:pseudoheader_terminator]
     
