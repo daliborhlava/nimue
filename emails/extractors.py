@@ -3,10 +3,71 @@ import pytz
 
 import re
 
+import hashlib
+import os
+
+from shared import detect_encoding
+
 KEY_MAX_LENGTH = 15  # Maximum length of a key in the pseudoheader.
 PSEUDOHEADER_SCAN_LINES = 10  # Maximum number of lines in the pseudoheader.
 
-def extract_email_info(email_string):
+UNKNOWN = '<missing>'  # Placeholder for unknown values.
+
+
+class ProcessorEmptyFileException(Exception):
+    pass
+
+
+def process(item_path: str) -> dict:
+    encoding = detect_encoding(item_path)
+
+    contents = None
+    with open(item_path, 'r', encoding=encoding) as f:
+        contents = f.read()
+
+    if contents is None or contents.strip() == "":
+        raise ProcessorEmptyFileException(f"Empty file: {item_path}")
+
+    # Calculate md5 hash of the file contents to use as a unique identifier.
+    hash = hashlib.md5(contents.encode()).hexdigest()
+
+    name = os.path.basename(item_path)
+    metadata = extract_mail_metadata(name, contents)
+
+    metadata['encoding'] = encoding
+    metadata['hash'] = hash
+    metadata['content-length'] = len(contents)
+
+    return metadata, contents
+
+
+def extract_mail_metadata(name: str, contents: str) -> dict:
+
+    """ Extracts email metadata from available data and combines them. """
+    metadata_name = extract_mail_info_from_name_method1(name)
+    metadata_contents = extract_email_info_from_contents_method1(contents)
+
+    to = metadata_contents.get('to', UNKNOWN)
+    attachments = metadata_contents.get('attachments', '').strip(';')
+
+    metadata = {
+        "source": name,
+        "from_str": metadata_contents.get('from', UNKNOWN),
+        "from_email": metadata_name['from_email'],  # Unknown handled already inside.
+        "to_str": to,
+        "to_email": to,  # Currently no other way to source to.
+        "cc": metadata_contents.get('cc', ''),
+        "bcc": metadata_contents.get('bcc', ''),
+        "subject": metadata_contents.get('subject', UNKNOWN),
+        "datetime_utc": metadata_contents['date (utc)'],
+        "attachments": attachments,
+        "attachments-count": len(attachments.split(';')) if len(attachments) > 0 else 0,
+    }
+
+    return metadata
+
+
+def extract_email_info_from_contents_method1(email_string):
     """
     Extracts date, sender, recipient, and subject from an email string.
     Sample file contents:
@@ -35,10 +96,18 @@ def extract_email_info(email_string):
     if did_break == False and len(pseudoheader) >= PSEUDOHEADER_SCAN_LINES:
         raise Exception("No breaker found in the pseudoheader -> increase the search space.")
     
-    if pseudoheader_terminator < 3:
+    if pseudoheader_terminator == 1:
+        # Special handling for malformed emails where pseudoheader does not break lines.
+        pseudoheader = []
+        s = lines[0].replace('Date :', '\n').replace('From :', '\n').replace('To :', '\n').replace('Subject :', '\n') 
+
+        #TODO
+        1/0
+
+    elif pseudoheader_terminator < 3:
         raise Exception("Too few lines in the pseudoheader -> something wrong?.")
-    
-    pseudoheader = pseudoheader[:pseudoheader_terminator]
+    else:
+        pseudoheader = pseudoheader[:pseudoheader_terminator]
     
     # Initialize an empty dictionary to store the extracted data.
     extracted_data = {}
@@ -75,44 +144,19 @@ def extract_email_info(email_string):
     return extracted_data
 
 
-def extract_mail_metadata_method1(name: str, contents: str):
+def extract_mail_info_from_name_method1(name: str) -> dict:
     """
-    Extracts metadata from an email file using a specific method.
+    Extracts metadata from an email name using a specific method.
     Sample naming: 1-3-2017__Jane doe_ _Jane.Doe@example.com__RE_ XXX XX - lorem ipsum
     """
 
-    extracted_data = extract_email_info(contents)
-
-    from_email = ""
+    # Extract the email from the name.
     email_pattern = r"_\s*_?(?P<email>[\w._+-]+@[\w-]+\.[\w.-]+)\s*_"
     match = re.search(email_pattern, name)
-
-    if match:
-        from_email = match.group(1)
-    else:
-        raise Exception("No from email found - adjust regex / fix naming options")
-
-    from_str = extracted_data['from']
-    to_str = extracted_data.get('to', '')
-    to_email = to_str  # Currently no other way to source to.
-    cc = extracted_data.get('cc', '')
-    bcc = extracted_data.get('bcc', '')
-    subject = extracted_data['subject']
-    datetime_utc = extracted_data['date (utc)']
-    attachments = extracted_data.get('attachments', '').strip(';')
+    from_email = match.group(1) if match else UNKNOWN
 
     metadata = {
-        "source": name,
-        "from_str": from_str,
         "from_email": from_email,
-        "to_str": to_str,
-        "to_email": to_email,
-        "cc": cc,
-        "bcc": bcc,
-        "subject": subject,
-        "datetime_utc": datetime_utc,
-        "attachments": attachments,
-        "attachments-count": len(attachments.split(';')) if len(attachments) > 0 else 0,
     }
 
     return metadata

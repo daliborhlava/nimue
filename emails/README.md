@@ -13,5 +13,5 @@
 
 * TODO
 - create error queue with emails that failed processing instead of termination
+    - strange "header" keys - finalize list and read only known ones
 - "attachments": "" get NaN treatment
-- strange "header" keys - finalize list and read only known ones
