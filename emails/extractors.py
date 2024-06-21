@@ -122,14 +122,15 @@ def extract_email_info_from_contents_method1(email_string):
 
         if len(parts) == 2:  # Ensure a colon was found
             key, value = parts
+            key_norm = key.strip().lower()
 
-            if len(key) > KEY_MAX_LENGTH:
+            if len(key_norm) > KEY_MAX_LENGTH:
                 continue  # Skip lines that are too long to be keys.
 
-            if key not in allowed_keys:
+            if key_norm not in allowed_keys:
                 continue
 
-            extracted_data[key.strip().lower()] = value.strip().strip('"')  # Clean up and store
+            extracted_data[key_norm] = value.strip().strip('"')  # Clean up and store
 
     # Handle date and time.
     try:
