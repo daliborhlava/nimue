@@ -163,5 +163,6 @@ project.secrets
 *.secrets
 
 emails/analytics/*.csv
+emails/analytics/*.df
 emails/analytics/*.log
 emails/analytics/*.xlsx

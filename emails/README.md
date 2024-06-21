@@ -12,5 +12,6 @@
 
 
 ## TODO
+- de duplicate based on names after verifying hash matches?
 - DF -> CSV -> DF -> EXCEL - does not really populate trailing columns, not sure why yet
 - "attachments": "" get NaN treatment

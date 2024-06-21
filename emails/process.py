@@ -3,6 +3,8 @@ import json
 
 from pathlib import Path
 
+import pickle
+
 import pandas as pd
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
@@ -35,6 +37,7 @@ ctr = 1
 ctr_total = len(sorted_file_list)
 
 pd_data_list = []
+pd_data_list_with_duplicates = []
 
 malformed_pseudoheader_list = []
 empty_files_list = []
@@ -69,6 +72,8 @@ for item in sorted_file_list:
     
     hash = metadata['hash']
     target_path = os.path.join(processed_dir, hash + ".txt")
+
+    pd_data_list_with_duplicates.append(metadata)
     
     if os.path.exists(target_path):
         print(f"File already exists -> skipping. Source: {item_path}")
@@ -85,8 +90,17 @@ for item in sorted_file_list:
 
     pd_data_list.append(metadata)
 
+pickle_path = os.path.join(ANALYTICS_PATH, "results.df")
+pickle_with_duplicates_path = os.path.join(ANALYTICS_PATH, "results_with_duplicates.df")
+
 csv_path = os.path.join(ANALYTICS_PATH, "results.csv")
+csv_with_duplicates_path = os.path.join(ANALYTICS_PATH, "results_with_duplicates.csv")
+
+pickle.dump(pd_data_list, open(pickle_path, "wb"))
+pickle.dump(pd_data_list_with_duplicates, open(pickle_with_duplicates_path, "wb"))
+
 pd.DataFrame(pd_data_list).to_csv(csv_path, index=False)
+pd.DataFrame(pd_data_list_with_duplicates).to_csv(csv_with_duplicates_path, index=False)
 
 # Store lists of files with problems.
 with open(os.path.join(ANALYTICS_PATH, "malformed_pseudoheader_list.log"), "w") as f:
