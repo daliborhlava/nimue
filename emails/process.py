@@ -8,7 +8,9 @@ import pandas as pd
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 
 # In case resume is needed.
-SKIP_FIRST_FILES = 89200
+# Do not though that this will not populate analytics file properly,
+# so it is required to start from scratch for the final run.
+SKIP_FIRST_FILES = 0
 
 # Mind the gitignore file if you change this.
 ANALYTICS_PATH = "./analytics"
@@ -40,8 +42,9 @@ empty_files_list = []
 stats = {
     'total-files': ctr_total,
     'processed-files': 0,
-    'malformed-pseudooheader': 0,
-    'empty-files': 0
+    'malformed-pseudoheader': 0,
+    'empty-files': 0,
+    'duplicate-content': 0
 }
 
 for item in sorted_file_list:
@@ -60,7 +63,7 @@ for item in sorted_file_list:
         continue
     except MalformedPseudoheaderException as e:
         print(f"{e}")
-        stats['malformed-pseudooheader'] += 1
+        stats['malformed-pseudoheader'] += 1
         malformed_pseudoheader_list.append(item_path)
         continue
     
@@ -69,6 +72,7 @@ for item in sorted_file_list:
     
     if os.path.exists(target_path):
         print(f"File already exists -> skipping. Source: {item_path}")
+        stats['duplicate-content'] += 1
         continue
 
     encoding = metadata['encoding']

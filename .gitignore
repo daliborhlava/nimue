@@ -162,5 +162,6 @@ cython_debug/
 project.secrets
 *.secrets
 
-analytics/*.csv
-analytics/*.log
+emails/analytics/*.csv
+emails/analytics/*.log
+emails/analytics/*.xslx

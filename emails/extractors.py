@@ -151,7 +151,7 @@ def extract_mail_info_from_name_method1(name: str) -> dict:
     """
 
     # Extract the email from the name.
-    email_pattern = r"_\s*_?(?P<email>[\w._+-]+@[\w-]+\.[\w.-]+)\s*_"
+    email_pattern = r"_\s*_?(?P<email>[\w._+-]+@([\w_-]+\.)+[a-zA-Z]{2,63})\s*_"
     match = re.search(email_pattern, name)
     from_email = match.group(1) if match else UNKNOWN
 

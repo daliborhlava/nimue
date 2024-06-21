@@ -1,3 +1,4 @@
+## Flow
 - Optional|Sourcing - Obtain mbox (e.g. from Google takeout)
 - Optional|Sourcing - Use tool to convert mbox into email per file (e.g. https://www.recoverytools.com/mbox/migrator/)
 - Ingest raw email naming should be: 1-3-2017__Jane doe_ _Jane.Doe@example.com__RE_ XXX XX - lorem ipsum
@@ -10,7 +11,7 @@
 - Run email-api.py to expose search capabilities to nimui core.
 
 
-* TODO
+## TODO
 - change to read all txt files; track stats
     - currently it is not obvious if some files are in multiple folders, but if dupes are reported, it should not matter much
 - "attachments": "" get NaN treatment
