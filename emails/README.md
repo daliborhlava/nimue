@@ -12,6 +12,5 @@
 
 
 ## TODO
-- change to read all txt files; track stats
-    - currently it is not obvious if some files are in multiple folders, but if dupes are reported, it should not matter much
+- DF -> CSV -> DF -> EXCEL - does not really populate trailing columns, not sure why yet
 - "attachments": "" get NaN treatment
