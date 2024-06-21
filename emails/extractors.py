@@ -113,6 +113,9 @@ def extract_email_info_from_contents_method1(email_string):
     # Initialize an empty dictionary to store the extracted data.
     extracted_data = {}
 
+    allowed_keys = ['date', 'from', 'to', 'subject', 'attachment', 'date (utc)',
+                       'cc', 'bcc']
+
     # Iterate over the lines in the email string.
     for line in pseudoheader:
         parts = line.split(' : ', 1)  # Split on the first colon
@@ -122,6 +125,9 @@ def extract_email_info_from_contents_method1(email_string):
 
             if len(key) > KEY_MAX_LENGTH:
                 continue  # Skip lines that are too long to be keys.
+
+            if key not in allowed_keys:
+                continue
 
             extracted_data[key.strip().lower()] = value.strip().strip('"')  # Clean up and store
 
@@ -133,14 +139,6 @@ def extract_email_info_from_contents_method1(email_string):
         extracted_data['date (utc)'] = local_datetime.astimezone(pytz.utc).isoformat()
     except OverflowError:
         extracted_data['date (utc)'] = '0001-01-01T00:00:00+00:00'
-
-    # Check for unexpected keys.
-    for key, val in extracted_data.items():
-        if key not in ['date', 'from', 'to', 'subject', 'attachment', 'date (utc)',
-                       'cc', 'bcc',
-                       # And the weird ones - temp only to ID the proper ones.
-                       '﻿auto time', 'typ', '· upozornění', 'cena celkem', 'firma', 'jméno', 'bench']:
-            raise Exception(f'Unexpected key: ->{key}<-.')
 
     return extracted_data
 
