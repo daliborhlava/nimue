@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 from shared import init_logger
+from constants import ANALYTICS_PATH
 
 logger = init_logger()
 
@@ -22,9 +23,6 @@ SKIP_FIRST_FILES = 0
 if SKIP_FIRST_FILES > 0:
     logger.warning(f"Skipping first {SKIP_FIRST_FILES} files. "
                    "Metadata construction will not be complete!")
-
-# Mind the gitignore file if you change this.
-ANALYTICS_PATH = "./analytics"
 
 secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:

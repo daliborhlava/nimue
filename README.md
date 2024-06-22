@@ -10,6 +10,7 @@ This is the high level "roadmap" written in a "braintorming" fashion, not all sh
     - location
     - regular files (drop-in directory for indexing)
     - notes
+    - explore all google takeout data
   - API
     - smarthome
     - todo / shopping

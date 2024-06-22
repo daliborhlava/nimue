@@ -1,7 +1,7 @@
 ## Flow
 - Optional|Sourcing - Obtain mbox (e.g. from Google takeout)
 - Optional|Sourcing - Use tool to convert mbox into email per file (e.g. https://www.recoverytools.com/mbox/migrator/)
-- Ingest raw email naming should be: 1-3-2017__Jane doe_ _Jane.Doe@example.com__RE_ XXX XX - lorem ipsum
+- Ingest raw email naming should be: DATE+FROM+SUBJECT, e.g. 1-3-2017__Jane doe_ _Jane.Doe@example.com__RE_ XXX XX - lorem ipsum
 - Put data into $ingest-dir (variable in secrets.json), all txt files will be recurisively scanned
 - Run process.py, which processes files one by one, tags metadata, output goes to ingest-processed. Analytics file is output into analytics directory. Notebook is ready there to be used.
 - Optional|Costs - Tokens can be optionally counter by token-counter.py, output stored to analytics directory.
@@ -12,8 +12,8 @@
 
 
 ## TODO
-- analysis
-- embeddings, incl. resume
+- embeddings, incl. resume (rename token counter to support both)
+- process: some attribs are with _ and some with -, unify to -
 - API search
 - API LLM-based to properly construct the query
 

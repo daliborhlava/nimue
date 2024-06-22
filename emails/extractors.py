@@ -7,12 +7,10 @@ import hashlib
 import os
 
 from shared import detect_encoding
+from constants import UNKNOWN_VALUE
 
 KEY_MAX_LENGTH = 15  # Maximum length of a key in the pseudoheader.
 PSEUDOHEADER_SCAN_LINES = 10  # Maximum number of lines in the pseudoheader.
-
-UNKNOWN = '<missing>'  # Placeholder for unknown values.
-
 
 class ProcessorEmptyFileException(Exception):
     pass
@@ -51,18 +49,18 @@ def extract_mail_metadata(name: str, contents: str) -> dict:
     metadata_name = extract_mail_info_from_name_method1(name)
     metadata_contents = extract_email_info_from_contents_method1(contents)
 
-    to = metadata_contents.get('to', UNKNOWN)
+    to = metadata_contents.get('to', UNKNOWN_VALUE)
     attachments = metadata_contents.get('attachments', '').strip(';')
 
     metadata = {
         "source": name,
-        "from_str": metadata_contents.get('from', UNKNOWN),
+        "from_str": metadata_contents.get('from', UNKNOWN_VALUE),
         "from_email": metadata_name['from_email'],  # Unknown handled already inside.
         "to_str": to,
         "to_email": to,  # Currently no other way to source to.
         "cc": metadata_contents.get('cc', ''),
         "bcc": metadata_contents.get('bcc', ''),
-        "subject": metadata_contents.get('subject', UNKNOWN),
+        "subject": metadata_contents.get('subject', UNKNOWN_VALUE),
         "datetime_utc": metadata_contents['date (utc)'],
         "attachments": attachments,
         "attachments-count": len(attachments.split(';')) if len(attachments) > 0 else 0,
@@ -157,7 +155,7 @@ def extract_mail_info_from_name_method1(name: str) -> dict:
     # however we need to use a pattern that works with the provided tool export. 
     email_pattern = r"_\s*_?(?P<email>[\w._+-]+@([\w_-]+\.)+[a-zA-Z]{2,63})\s*_"
     match = re.search(email_pattern, name)
-    from_email = match.group(1).lower() if match else UNKNOWN
+    from_email = match.group(1).lower() if match else UNKNOWN_VALUE
 
     metadata = {
         "from_email": from_email
