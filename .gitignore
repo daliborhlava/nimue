@@ -161,10 +161,3 @@ cython_debug/
 
 project.secrets
 *.secrets
-
-emails/*.log
-emails/analytics/*.csv
-emails/analytics/*.df
-emails/analytics/*.pkl
-emails/analytics/*.log
-emails/analytics/*.xlsx
