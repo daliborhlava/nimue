@@ -12,8 +12,12 @@
 
 
 ## TODO
-- de duplicate based on names after verifying hash matches?
-Stats:
+Stats (temp):
 {'total-files': 282919, 'processed-files': 282919, 'malformed-pseudoheader': 0, 'empty-files': 11, 'duplicate-content': 166434}
 - DF -> CSV -> DF -> EXCEL - does not really populate trailing columns, not sure why yet
 - "attachments": "" get NaN treatment
+
+## Gmail MBOX Extractor
+In the exported directory structure as exported by the tool (https://www.recoverytools.com/mbox/),
+there are lots of duplicates stores in different directories. Simple filename based matching eliminates vast majority, but about 3k out of 282k turned out to be missing with this approach hence it is better to process
+all the files regardless since computing resources used and compute time spent are not significant.
