@@ -152,12 +152,15 @@ def extract_mail_info_from_name_method1(name: str) -> dict:
     """
 
     # Extract the email from the name.
+
+    # This is not strictly per RFC 3696 which allows leading _,
+    # however we need to use a pattern that works with the provided tool export. 
     email_pattern = r"_\s*_?(?P<email>[\w._+-]+@([\w_-]+\.)+[a-zA-Z]{2,63})\s*_"
     match = re.search(email_pattern, name)
-    from_email = match.group(1) if match else UNKNOWN
+    from_email = match.group(1).lower() if match else UNKNOWN
 
     metadata = {
-        "from_email": from_email,
+        "from_email": from_email
     }
 
     return metadata
