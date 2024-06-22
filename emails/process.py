@@ -8,33 +8,20 @@ import time
 
 import pandas as pd
 
+from tqdm import tqdm
+
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
+from shared import init_logger
 
-import logging
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
-
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
-
-# Might need to be changed if emails are in differnet format.
-file_handler = logging.FileHandler('process-run.log', encoding='UTF-8 SIG')
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+logger = init_logger()
 
 # In case resume is needed.
 # Do not though that this will not populate analytics file properly,
 # so it is required to start from scratch for the final run.
 SKIP_FIRST_FILES = 0
 if SKIP_FIRST_FILES > 0:
-    logger.warning(f"Skipping first {SKIP_FIRST_FILES} files. Metadata construction will not be complete!")
+    logger.warning(f"Skipping first {SKIP_FIRST_FILES} files. "
+                   "Metadata construction will not be complete!")
 
 # Mind the gitignore file if you change this.
 ANALYTICS_PATH = "./analytics"
@@ -80,15 +67,12 @@ stats = {
     'duplicate-content': 0
 }
 
-for item in sorted_file_list:
+for item in tqdm(sorted_file_list, desc="Processing files"):
     item_name = item.name
     item_path = item.as_posix()
 
     logger.debug(f"{stats['processed-files']:,}/{ctr_total:,}: {item_path}")
     stats['processed-files'] += 1
-
-    if stats['processed-files'] % 1000 == 0:
-        logger.info(f"Processed: {100*stats['processed-files']/ctr_total:.1f}%")
 
     try:
         metadata, contents = process(item_path)
