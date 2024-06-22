@@ -12,10 +12,12 @@
 
 
 ## TODO
-Stats (temp):
-{'total-files': 282919, 'processed-files': 282919, 'malformed-pseudoheader': 0, 'empty-files': 11, 'duplicate-content': 166434}
 - DF -> CSV -> DF -> EXCEL - does not really populate trailing columns, not sure why yet
 - "attachments": "" get NaN treatment
+- analysis
+- embeddings, incl. resume
+- API search
+- API LLM-based to properly construct the query
 
 ## Gmail MBOX Extractor
 In the exported directory structure as exported by the tool (https://www.recoverytools.com/mbox/),
