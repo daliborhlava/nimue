@@ -12,8 +12,11 @@
 
 
 ## TODO
-- embeddings, incl. resume (rename token counter to support both)
 - process: some attribs are with _ and some with -, unify to -
+- data alt after sorting out names
+- embeddings, incl. resume (rename token counter to support both)
+  - utilize arg parser: just count..., review other pieces
+  - proper config management?
 - API search
 - API LLM-based to properly construct the query
 
