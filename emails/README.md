@@ -12,8 +12,6 @@
 
 
 ## TODO
-- process: some attribs are with _ and some with -, unify to -
-- data alt after sorting out names
 - embeddings, incl. resume (rename token counter to support both)
 - API search
 - API LLM-based to properly construct the query
