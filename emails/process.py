@@ -34,7 +34,7 @@ secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
-ingest_dir = secrets_data["ingest-dir"]
+source_dir = secrets_data["source-dir"]
 processed_dir = secrets_data["processed-dir"]
 
 if not os.path.exists(processed_dir):
@@ -44,7 +44,7 @@ start_time = time.perf_counter()
 
 # We need to exclude Attachment/*.txt as these have different formats.
 # If needed they can be processed separately.
-file_list = [f for f in Path(ingest_dir).glob('**/*.txt') if "Attachment" not in f.parts]
+file_list = [f for f in Path(source_dir).glob('**/*.txt') if "Attachment" not in f.parts]
 absolute_total_count = len(file_list)
 
 logger.info('Starting...')

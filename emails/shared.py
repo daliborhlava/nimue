@@ -2,6 +2,10 @@ import tiktoken
 import chardet
 import logging
 
+from typing import List, Optional
+
+import openai
+
 
 def init_logger(logger_name: str = None) -> logging.Logger:
     if logger_name is None:
@@ -17,7 +21,7 @@ def init_logger(logger_name: str = None) -> logging.Logger:
     console_handler.setFormatter(formatter)
 
     # Might need to be changed if emails are in differnet format.
-    file_handler = logging.FileHandler(f'{logger_name}.log', encoding='UTF-8 SIG')
+    file_handler = logging.FileHandler(f'{logger_name}.log', encoding='UTF-8 SIG', mode='w')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 
@@ -44,3 +48,12 @@ def detect_encoding(file_path):
     with open(file_path, 'rb') as f:
         result = chardet.detect(f.read())
     return result['encoding']
+
+
+#@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+def get_embedding(client: openai.OpenAI, text: str, model="text-embedding-3-small") -> List[float]:
+
+    # replace newlines, which can negatively affect performance.
+    text = text.replace("\n", " ")
+
+    return client.embeddings.create(input=[text], model=model).data[0].embedding
