@@ -37,8 +37,8 @@ def process(item_path: str) -> dict:
 
     metadata['encoding'] = encoding
     metadata['hash'] = hash
-    metadata['content-length'] = len(contents)
-    metadata['full-path'] = item_path
+    metadata['content_length'] = len(contents)
+    metadata['full_path'] = item_path
 
     return metadata, contents
 
