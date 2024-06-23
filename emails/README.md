@@ -17,8 +17,10 @@
 - simple search UI
 - API LLM-based to properly construct the query
 
+
 ## Long-Term Features
-- attachment handling
+- attachment handling; tool now does extract links to attachments to metadata, files are on filesystem so definitely possible to extend to embed in some way attachments as well
+
 
 ## Gmail MBOX Extractor
 In the exported directory structure as exported by the tool (https://www.recoverytools.com/mbox/),
