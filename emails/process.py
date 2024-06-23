@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 from shared import init_logger
-from constants import ANALYTICS_PATH
+from constants import ANALYTICS_PATH, EMAIL_EXTENSION, METADATA_EXTENSION
 
 logger = init_logger('process')
 
@@ -44,7 +44,8 @@ start_time = time.perf_counter()
 
 # We need to exclude Attachment/*.txt as these have different formats.
 # If needed they can be processed separately.
-file_list = [f for f in Path(source_dir).glob('**/*.txt') if "Attachment" not in f.parts]
+# This is input data, so hence suffix is not parameteric.
+file_list = [f for f in Path(source_dir).glob(f'**/*.txt') if "Attachment" not in f.parts]
 absolute_total_count = len(file_list)
 
 logger.info('Starting...')
@@ -92,7 +93,7 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
         continue
     
     hash = metadata['hash']
-    target_path = os.path.join(processed_dir, hash + ".txt")
+    target_path = os.path.join(processed_dir, hash + "." + EMAIL_EXTENSION)
 
     pd_data_list_with_duplicates.append(metadata)
     
@@ -106,8 +107,8 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     with open(target_path, 'w', encoding=encoding) as f:
         f.write(contents)
 
-    metadata_path = os.path.join(processed_dir, hash + ".metadata.json")
-    with open(metadata_path, 'w') as f:
+    metadata_path = os.path.join(processed_dir, hash + "." + METADATA_EXTENSION)
+    with open(metadata_path, 'w', encoding=encoding) as f:
         json.dump(metadata, f, indent=2)
 
     pd_data_list.append(metadata)

@@ -20,7 +20,7 @@
 
 ## TODO
 - embeddings, incl. resume (rename token counter to support both)
----test embedding (now implemented, not run) on small sample, continue to verify it is ingestable before doing big load.
+---test embedding (now implemented, not run) on small sample, continue to verify it is ingestable before doing big load. This includes simple query script to verify all loaded correctly.
 - API search
 - simple search UI
 - API LLM-based to properly construct the query

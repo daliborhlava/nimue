@@ -29,7 +29,7 @@ parser.add_argument("-o", "--overwrite", help="If embedding file already exists,
                     action="store_true")
 parser.add_argument("-p", "--price-per-mil-tokens", help="Price for embedding 1 million tokens (default 0.13 USD)",
                     type=float, default=0.13)
-parser.add_argument("-l", "--limit", help="Maximum files to process (default 0 = unlimited)",
+parser.add_argument("-l", "--limit", help="Maximum files to process (default 0=unlimited)",
                     type=int, default=0)
 args = parser.parse_args()
 
@@ -71,17 +71,17 @@ stats['total-files-to-process'] = len(sorted_file_list)
 
 logger.info('Starting...')
 if PERFORM_EMBEDDING:
-    logger.info('Embedding enabled')
+    logger.info('OPTION: Embedding enabled')
     logger.info(f"Price per million tokens: {PRICE_PER_MEGA_TOKENS}")
     if REGENERATE_IF_EXISTS:
-        logger.info("Regenerating embedding files if they already exist")
+        logger.info("OPTION: Regenerating embedding files if they already exist")
     else:
         logger.info("Skipping embedding generation if files already exist")
 else:
     logger.info('Embedding generation disabled, use -e to enable')
     
 if LIMIT_FILES > 0:
-    logger.info(f"Limiting files to process to {LIMIT_FILES:,}")
+    logger.info(f"OPTION: Limiting files to process to {LIMIT_FILES:,}")
 
 logger.info(f"Total files to process: {stats['total-files-to-process']:,}")
 
@@ -150,7 +150,6 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     ctr += 1
 
 stats['total-files-processed'] = ctr - 1
-
 
 total_price = tokens_price(stats['total-tokens'], PRICE_PER_MEGA_TOKENS)
 logger.info(f"Total tokens: {stats['total-tokens']:,} -> price: {total_price:,} USD")
