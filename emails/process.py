@@ -1,6 +1,8 @@
 import os
 import json
 
+import argparse
+
 from pathlib import Path
 
 import pickle
@@ -16,12 +18,16 @@ from constants import ANALYTICS_PATH
 
 logger = init_logger()
 
+parser = argparse.ArgumentParser(description="Nimue Email Processor")
+parser.add_argument("-s", "--skip", help="Skip first N files", type=int, default=0)
+args = parser.parse_args()
+
 # In case resume is needed.
 # Do not though that this will not populate analytics file properly,
 # so it is required to start from scratch for the final run.
-SKIP_FIRST_FILES = 0
-if SKIP_FIRST_FILES > 0:
-    logger.warning(f"Skipping first {SKIP_FIRST_FILES} files. "
+skip_first_n_files = args.skip
+if skip_first_n_files > 0:
+    logger.warning(f"Skipping first {skip_first_n_files} files. "
                    "Metadata construction will not be complete!")
 
 secrets_file_name = 'project.secrets'
@@ -46,7 +52,7 @@ logger.info(f"Total files to process: {absolute_total_count:,}")
 
 sorted_file_list = sorted(file_list)
 
-sorted_file_list = sorted_file_list[SKIP_FIRST_FILES:]
+sorted_file_list = sorted_file_list[skip_first_n_files:]
 
 ctr = 1
 ctr_total = len(sorted_file_list)
