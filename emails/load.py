@@ -67,21 +67,14 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     logger.debug(f"{ctr:,}/{stats['total-files-to-process']:,}: {item_path}")
 
     email_file_path = item.with_suffix(f'.{EMAIL_EXTENSION}').as_posix()
-
     encoding = detect_encoding(email_file_path)
-    print(f"Encoding: {encoding}")
-
     with open(email_file_path, "r", encoding=encoding) as email_file:
         contents = email_file.read()
 
     metadata_file_path = item.with_suffix(f'.{METADATA_EXTENSION}').as_posix()
-
-    # metadata as json?
-    encoding = detect_encoding(metadata_file_path)
-    print(f"Encoding: {encoding}")
-
-    with open(item_path, "r", encoding=encoding) as metadata_file:
-        metadata = metadata_file.read()
+    # Encoding should be the same (processor does it that way).
+    with open(metadata_file_path, "r", encoding=encoding) as metadata_file:
+        metadata = json.load(metadata_file)
 
     embedding_file_path = item.with_suffix(f'.{EMBEDDING_EXTENSION}').as_posix()
     with open(embedding_file_path, "rb") as embedding_file:
