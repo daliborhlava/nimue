@@ -14,7 +14,11 @@
 ## TODO
 - embeddings, incl. resume (rename token counter to support both)
 - API search
+- simple search UI
 - API LLM-based to properly construct the query
+
+## Long-Term Features
+- attachment handling
 
 ## Gmail MBOX Extractor
 In the exported directory structure as exported by the tool (https://www.recoverytools.com/mbox/),
