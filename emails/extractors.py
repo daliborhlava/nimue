@@ -63,7 +63,7 @@ def extract_mail_metadata(name: str, contents: str) -> dict:
         "subject": metadata_contents.get('subject', UNKNOWN_VALUE),
         "datetime_utc": metadata_contents['date (utc)'],
         "attachments": attachments,
-        "attachments-count": len(attachments.split(';')) if len(attachments) > 0 else 0,
+        "attachments_count": len(attachments.split(';')) if len(attachments) > 0 else 0,
     }
 
     return metadata
@@ -82,7 +82,9 @@ def extract_email_info_from_contents_method1(email_string):
     """
 
     lines = email_string.splitlines()
-    pseudoheader = lines[:PSEUDOHEADER_SCAN_LINES]  # Extract the pseudoheader (first x lines containing key : value).
+
+    # Extract the pseudoheader (first x lines containing key : value).
+    pseudoheader = lines[:PSEUDOHEADER_SCAN_LINES]  
 
     pseudoheader_terminator = 0
     did_break = False
@@ -105,15 +107,18 @@ def extract_email_info_from_contents_method1(email_string):
         pseudoheader = s.splitlines()
 
     elif pseudoheader_terminator < 3:
-        raise MalformedPseudoheaderException("Too few lines in the pseudoheader -> something wrong?.")
+        raise MalformedPseudoheaderException(
+            "Too few lines in the pseudoheader -> something wrong?"
+        )
     else:
         pseudoheader = pseudoheader[:pseudoheader_terminator]
     
     # Initialize an empty dictionary to store the extracted data.
     extracted_data = {}
 
-    allowed_keys = ['date', 'from', 'to', 'subject', 'attachment', 'date (utc)',
-                       'cc', 'bcc']
+    allowed_keys = ['date', 'from', 'to', 'subject',
+                    'attachment', 'date (utc)',
+                    'cc', 'bcc']
 
     # Iterate over the lines in the email string.
     for line in pseudoheader:
