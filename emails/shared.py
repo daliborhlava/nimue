@@ -3,8 +3,11 @@ import chardet
 import logging
 
 
-def init_logger():
-    logger = logging.getLogger(__name__)
+def init_logger(logger_name: str = None) -> logging.Logger:
+    if logger_name is None:
+        logger_name = __name__
+
+    logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
@@ -14,7 +17,7 @@ def init_logger():
     console_handler.setFormatter(formatter)
 
     # Might need to be changed if emails are in differnet format.
-    file_handler = logging.FileHandler('process-run.log', encoding='UTF-8 SIG')
+    file_handler = logging.FileHandler(f'{logger_name}.log', encoding='UTF-8 SIG')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

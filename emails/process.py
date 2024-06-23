@@ -16,7 +16,7 @@ from extractors import process, ProcessorEmptyFileException, MalformedPseudohead
 from shared import init_logger
 from constants import ANALYTICS_PATH
 
-logger = init_logger()
+logger = init_logger('process')
 
 parser = argparse.ArgumentParser(description="Nimue Email Processor")
 parser.add_argument("-s", "--skip", help="Skip first N files", type=int, default=0)
