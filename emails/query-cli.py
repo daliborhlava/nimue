@@ -11,7 +11,7 @@ import openai
 
 from constants import EMAIL_COLLECTION_NAME, EMBEDDING_MODEL
 
-default_results = 5
+default_results = 3
 
 parser = argparse.ArgumentParser(description="Nimue Query CLI")
 parser.add_argument("-q", "--query", help="Query to ask", type=str, required=True)
@@ -43,38 +43,32 @@ client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=
 
 collection = client.get_or_create_collection(name=EMAIL_COLLECTION_NAME, embedding_function=embedding_function)
 
-result = collection.count()
-
-# Retrieval Logic
-if result == 0:
-    print("No documents in the collection yet.")
-    sys.exit()
-
 query = args.query
 results = args.results
 
-results = collection.get(
-    query=query,
-    limit=results,  # Get couple docs.
-    include=["documents", "metadatas", "embeddings"]  # Include all relevant data.
+results = collection.query(
+    query_texts=query,
+    n_results=results,  # Get couple docs.
+    # Also available: "embeddings"
+    include=["documents", "metadatas"]
 )
 
-for key in results['documents']:
-    doc = results['documents'][key]
-    metadata = results['metadatas'][key]
-    embedding = results['embeddings'][key]
+if not results["documents"]:  # Check if any results were found
+    print(f"No results found for query: '{query}'")
+    sys.exit(-1)
 
+documents = results["documents"][0]
+metadatas = results["metadatas"][0]
+
+for k,v in enumerate(documents):
+    
+    metadata = metadatas[k]  # Get the corresponding metadata
+    document = documents[k]  # Get the corresponding document
+
+    print(f"\nResult {k+1}:")
+    print("-" * 10)  # Separator
     print("Document Chunk:")
-    print(doc)
-    print()
-
-    print("Metadata:")
+    print(document)
+    print("\nMetadata:")
     print(metadata)
-    print()
-
-    print("Embedding (truncated for display):")
-    print(embedding[:5])  # Display the first few elements of the embedding
-    print()
-
-    print('==================')
-    print()
+    print("=" * 20)  # Separator
