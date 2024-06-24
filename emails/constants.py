@@ -4,7 +4,7 @@ ANALYTICS_PATH = "./analytics"
 # Placeholder for unknown values.
 UNKNOWN_VALUE = '<missing>'
 
-# Filename extension of email files.
+# Filename extension of email files (original, full content file).
 EMAIL_EXTENSION = 'txt'
 
 # Filename extension of metadata files.

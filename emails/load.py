@@ -42,6 +42,9 @@ start_time = time.perf_counter()
 settings = Settings(allow_reset=True, anonymized_telemetry=False)
 client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=settings)
 
+# This can delete the collection if needed.
+#client.delete_collection(name=EMAIL_COLLECTION_NAME)
+
 collection = client.get_or_create_collection(name=EMAIL_COLLECTION_NAME)
 
 processed_dir = secrets_data["processed-dir"]
@@ -80,17 +83,21 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
 
     embeddings_file_path = item.with_suffix(f'.{EMBEDDINGS_EXTENSION}').as_posix()
     with open(embeddings_file_path, "rb") as embeddings_file:
-        embeddings = pickle.load(embeddings_file)
+        chunks_embeddings = pickle.load(embeddings_file)
 
-    stats['chunks-processed'] += len(embeddings)
+    stats['chunks-processed'] += len(chunks_embeddings)
 
     embedding_no = 1
     hsh = metadata['hash']
 
-    for embedding in embeddings:
+    for (chunk, embedding) in chunks_embeddings:
+        metadata_chunk = metadata.copy()
+        metadata_chunk['chunk'] = embedding_no
+        metadata_chunk['total_chunks'] = len(chunks_embeddings)
+
         # Could be done in batch, but for now we do it one by one.
         collection.add(ids=[f"{hsh}-{embedding_no}"], embeddings=[embedding],
-                       metadatas=[metadata], documents=[contents])
+                       metadatas=[metadata_chunk], documents=[chunk])
 
         embedding_no += 1
         stats['documents-inserted'] += 1

@@ -83,7 +83,7 @@ stats = {
     'files-embedded': 0,
     'errors-bad-requests': 0,
     'errors-api': 0,
-    'errors-ither': 0
+    'errors-other': 0
 }
 
 start_time = time.perf_counter()
@@ -167,7 +167,7 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
 
                 try:
                     embedding = get_embedding(client, chunk, model=EMBEDDING_MODEL)
-                    embeddings.append(embedding)
+                    embeddings.append((chunk,embedding))
 
                 except openai.BadRequestError as e:
                     stats['errors-bad-requests'] += 1
