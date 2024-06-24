@@ -32,7 +32,9 @@ vector_db_port = secrets_data["vector-db-port"]
 
 stats = {
     'total-files-to-process': -1,
-    'total-files-processed': -1
+    'total-files-processed': -1,
+    'chunks-processed': 0,
+    'documents-inserted': 0,
 }
 
 start_time = time.perf_counter()
@@ -76,12 +78,22 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     with open(metadata_file_path, "r", encoding=encoding) as metadata_file:
         metadata = json.load(metadata_file)
 
-    embedding_file_path = item.with_suffix(f'.{EMBEDDINGS_EXTENSION}').as_posix()
-    with open(embedding_file_path, "rb") as embedding_file:
-        embedding = pickle.load(embedding_file)
+    embeddings_file_path = item.with_suffix(f'.{EMBEDDINGS_EXTENSION}').as_posix()
+    with open(embeddings_file_path, "rb") as embeddings_file:
+        embeddings = pickle.load(embeddings_file)
 
-    # Could be done in batch, but for now we do it one by one.
-    collection.add(ids=[item_path], embeddings=[embedding], metadatas=[metadata], documents=[contents])
+    stats['chunks-processed'] += len(embeddings)
+
+    embedding_no = 1
+    hsh = metadata['hash']
+
+    for embedding in embeddings:
+        # Could be done in batch, but for now we do it one by one.
+        collection.add(ids=[f"{hsh}-{embedding_no}"], embeddings=[embedding],
+                       metadatas=[metadata], documents=[contents])
+
+        embedding_no += 1
+        stats['documents-inserted'] += 1
 
     ctr += 1
 
