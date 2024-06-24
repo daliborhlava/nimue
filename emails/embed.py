@@ -183,6 +183,10 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
                     logger.error(f"Unexpected error while creating embedding: {e}")
                     raise e
 
+            if len(embeddings) != chunks_cnt:
+                logger.error(f"Error during chunking -> not going to store embeddings for {item_path}")
+                continue
+
             # Save the embedding in a pickle file
             with open(embeddings_file_path, 'wb') as f:
                 pickle.dump(embeddings, f)

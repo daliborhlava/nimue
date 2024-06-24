@@ -1,14 +1,24 @@
 import sys
 import os
+import json
+
+import argparse
 
 import chromadb
 from chromadb import Settings
 
 import openai
 
-import json
-
 from constants import EMAIL_COLLECTION_NAME, EMBEDDING_MODEL
+
+default_results = 5
+
+parser = argparse.ArgumentParser(description="Nimue Query CLI")
+parser.add_argument("-q", "--query", help="Query to ask", type=str, required=True)
+parser.add_argument("-r", "--results",
+                    help=f"Maximum results to return to process (default {default_results})",
+                    type=int, default=default_results)
+args = parser.parse_args()
 
 secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:
@@ -24,9 +34,9 @@ else:
 
 import chromadb.utils.embedding_functions as embedding_functions
 embedding_function = embedding_functions.OpenAIEmbeddingFunction(
-                api_key=openai.api_key,
-                model_name=EMBEDDING_MODEL
-            )
+                        api_key=openai.api_key,
+                        model_name=EMBEDDING_MODEL
+                    )
 
 settings = Settings(allow_reset=True, anonymized_telemetry=False)
 client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=settings)
@@ -34,32 +44,37 @@ client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=
 collection = client.get_or_create_collection(name=EMAIL_COLLECTION_NAME, embedding_function=embedding_function)
 
 result = collection.count()
-print(f'Total documents: {result}')
-
-get_doc = 16
 
 # Retrieval Logic
 if result == 0:
     print("No documents in the collection yet.")
     sys.exit()
 
+query = args.query
+results = args.results
+
 results = collection.get(
-    limit=get_doc+10,  # Get couple docs.
+    query=query,
+    limit=results,  # Get couple docs.
     include=["documents", "metadatas", "embeddings"]  # Include all relevant data.
 )
 
-first_document = results["documents"][get_doc]
-first_metadata = results["metadatas"][get_doc]
-first_embedding = results["embeddings"][get_doc]
+for key in results['documents']:
+    doc = results['documents'][key]
+    metadata = results['metadatas'][key]
+    embedding = results['embeddings'][key]
 
-print("Document:")
-print(first_document)
-print()
+    print("Document Chunk:")
+    print(doc)
+    print()
 
-print("Metadata:")
-print(first_metadata)
-print()
+    print("Metadata:")
+    print(metadata)
+    print()
 
-print("Embedding (truncated for display):")
-print(first_embedding[:5])  # Display the first few elements of the embedding
-print()
+    print("Embedding (truncated for display):")
+    print(embedding[:5])  # Display the first few elements of the embedding
+    print()
+
+    print('==================')
+    print()
