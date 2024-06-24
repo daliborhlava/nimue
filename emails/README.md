@@ -25,6 +25,7 @@
 
 ## TODO
 - embed - emails too big need to be split logically and loaded into db multiple times with different embeddings
+- count errors better for reporting, test how re-runs are handleded
 - API search
 - simple search UI
 - API LLM-based to properly construct the query

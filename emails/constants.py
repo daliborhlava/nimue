@@ -16,5 +16,8 @@ EMBEDDING_EXTENSION = 'pkl'
 # Embedding model to use.
 EMBEDDING_MODEL = 'text-embedding-3-large'
 
+# Maximum chunk size per embedding.
+EMBEDDING_CHUNK_SIZE = 8192  # NOTE: OpenAI limit is 8192 tokens.
+
 # Vector database collection name.
 EMAIL_COLLECTION_NAME = "emails"

@@ -19,7 +19,7 @@ import pandas as pd
 import json
 
 from shared import detect_encoding, num_tokens_from_string, tokens_price, init_logger, get_embedding
-from constants import ANALYTICS_PATH, EMBEDDING_EXTENSION, EMBEDDING_MODEL
+from constants import ANALYTICS_PATH, EMBEDDING_EXTENSION, EMBEDDING_MODEL, EMBEDDING_CHUNK_SIZE
 
 logger = init_logger('embed')
 
