@@ -12,7 +12,7 @@ import chromadb
 from chromadb import Settings
 
 from shared import init_logger, detect_encoding
-from constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDING_EXTENSION
+from constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
 
 logger = init_logger('load')
 
@@ -43,7 +43,7 @@ client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=
 collection = client.get_or_create_collection(name=EMAIL_COLLECTION_NAME)
 
 processed_dir = secrets_data["processed-dir"]
-file_list = [f for f in Path(processed_dir).glob(f'**/*.{EMBEDDING_EXTENSION}')]
+file_list = [f for f in Path(processed_dir).glob(f'**/*.{EMBEDDINGS_EXTENSION}')]
 sorted_file_list = sorted(file_list)
 
 if LIMIT_FILES > 0:
@@ -76,7 +76,7 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     with open(metadata_file_path, "r", encoding=encoding) as metadata_file:
         metadata = json.load(metadata_file)
 
-    embedding_file_path = item.with_suffix(f'.{EMBEDDING_EXTENSION}').as_posix()
+    embedding_file_path = item.with_suffix(f'.{EMBEDDINGS_EXTENSION}').as_posix()
     with open(embedding_file_path, "rb") as embedding_file:
         embedding = pickle.load(embedding_file)
 

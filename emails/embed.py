@@ -10,6 +10,7 @@ from tqdm import tqdm
 import argparse
 
 from langchain_community.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 import openai
 from openai import OpenAI
@@ -18,10 +19,23 @@ import pandas as pd
 
 import json
 
-from shared import detect_encoding, num_tokens_from_string, tokens_price, init_logger, get_embedding
-from constants import ANALYTICS_PATH, EMBEDDING_EXTENSION, EMBEDDING_MODEL, EMBEDDING_CHUNK_SIZE
+from shared import detect_encoding, init_logger
+from sharedai import num_tokens_from_string, tokens_price, get_embedding
+
+from constants import (
+    ANALYTICS_PATH, EMBEDDINGS_EXTENSION,
+    EMBEDDING_API_MAX_TOKENS,
+    EMBEDDING_MODEL, EMBEDDING_CHUNK_SIZE_TOKENS, EMBEDDING_CHUNK_OVERLAP_TOKENS
+)
 
 logger = init_logger('embed')
+
+if (EMBEDDING_CHUNK_SIZE_TOKENS > EMBEDDING_API_MAX_TOKENS or
+    EMBEDDING_CHUNK_OVERLAP_TOKENS > EMBEDDING_CHUNK_SIZE_TOKENS):
+    msg = ("Invalid configuration: EMBEDDING_CHUNK_SIZE_TOKENS > EMBEDDING_API_MAX_TOKENS "
+    "or EMBEDDING_CHUNK_OVERLAP_TOKENS > EMBEDDING_CHUNK_SIZE_TOKENS")
+    logger.critical(msg)
+    raise Exception(msg)
 
 parser = argparse.ArgumentParser(description="Nimue Email Embedder")
 parser.add_argument("-e", "--embed", help="Perform the embedding", action="store_true")
@@ -47,15 +61,29 @@ REGENERATE_IF_EXISTS = args.overwrite
 PRICE_PER_MEGA_TOKENS = args.price_per_mil_tokens
 LIMIT_FILES = args.limit
 
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=EMBEDDING_CHUNK_SIZE_TOKENS,
+    chunk_overlap=EMBEDDING_CHUNK_OVERLAP_TOKENS,
+    length_function=lambda text: num_tokens_from_string(text, "cl100k_base"),
+)
+
 secrets_file_name = 'project.secrets'
 with open(secrets_file_name, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
 stats = {
-    'total-files-to-process': -1,
-    'total-files-processed': -1,
-    'total-tokens': 0,
-    'total-files-embedded': 0
+    'files-to-process': -1,
+    'files-processed': -1,
+    'tokens-unsplitted': 0,
+    'tokens-splitted': 0,
+    'price-unsplitted': 0,
+    'price-splitted': 0,
+    'price-overhead': -1,
+    'chunks': 0,
+    'files-embedded': 0,
+    'errors-bad-requests': 0,
+    'errors-api': 0,
+    'errors-ither': 0
 }
 
 start_time = time.perf_counter()
@@ -67,7 +95,7 @@ sorted_file_list = sorted(file_list)
 if LIMIT_FILES > 0:
     sorted_file_list = sorted_file_list[:LIMIT_FILES]
 
-stats['total-files-to-process'] = len(sorted_file_list)
+stats['files-to-process'] = len(sorted_file_list)
 
 logger.info('Starting...')
 if PERFORM_EMBEDDING:
@@ -83,7 +111,7 @@ else:
 if LIMIT_FILES > 0:
     logger.info(f"OPTION: Limiting files to process to {LIMIT_FILES:,}")
 
-logger.info(f"Total files to process: {stats['total-files-to-process']:,}")
+logger.info(f"Total files to process: {stats['files-to-process']:,}")
 
 ctr = 1
 
@@ -97,62 +125,88 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
     loader = TextLoader(item_path, encoding=encoding)
     docs = loader.load()
 
-    doc_ctr = 0
-    original_text = ""
-    for doc in docs:
-        assert doc_ctr == 0, "Only one document per file is supported."
-        original_text += doc.page_content
-
-        doc_ctr += 1
+    original_text = docs[0].page_content
 
     tokens = num_tokens_from_string(original_text, "cl100k_base")
-    stats['total-tokens'] += tokens
+    stats['tokens-unsplitted'] += tokens
 
-    logger.debug(f"{ctr:,}/{stats['total-files-to-process']:,}: +{tokens:,}; path: {item_path}")
+    chunks = text_splitter.split_text(original_text)
+    chunks_cnt = len(chunks)
+    stats['chunks'] += chunks_cnt
+
+    tokens_splitted = sum([num_tokens_from_string(chunk, "cl100k_base") for chunk in chunks])
+    stats['tokens-splitted'] += tokens_splitted
+
+    logger.debug(f"{ctr:,}/{stats['files-to-process']:,}: Tokens: {tokens_splitted:,}, "
+                 f"Chunks: {chunks_cnt}, Path: {item_path}")
 
     df_token_data.append({
         'ctr': ctr,
-        'tokens': tokens,
-        'tokens_price': tokens_price(tokens, PRICE_PER_MEGA_TOKENS),
+        'tokens_unsplitted': tokens,
+        'tokens_splitted': tokens_splitted,
+        'price_unsplitted': tokens_price(tokens, PRICE_PER_MEGA_TOKENS),
+        'price_splitted': tokens_price(tokens_splitted, PRICE_PER_MEGA_TOKENS),
+        'chunks': chunks_cnt,
         'name': item.name,
-        'full-path': item_path
+        'full_path': item_path
     })
 
     # Implement the making of embeding
     # after testing it not exists
     # or regen and owerwriting if needed
     if PERFORM_EMBEDDING:
-        embedding_file_path = item.with_suffix(f".{EMBEDDING_EXTENSION}").as_posix()
+        embeddings_file_path = item.with_suffix(f".{EMBEDDINGS_EXTENSION}").as_posix()
 
         # Conditional embedding generation
-        if REGENERATE_IF_EXISTS or not os.path.exists(embedding_file_path):
-            try:
-                embedding = get_embedding(client, original_text, model=EMBEDDING_MODEL)
-                stats['total-files-embedded'] += 1
+        if REGENERATE_IF_EXISTS or not os.path.exists(embeddings_file_path):
+            embeddings = []
+            
+            for i, chunk in enumerate(chunks): 
 
-                # Save the embedding in a pickle file
-                with open(embedding_file_path, 'wb') as f:
-                    pickle.dump(embedding, f)
+                logger.debug(f"Chunk {i+1}/{chunks_cnt} -> {len(chunk)} characters")
 
-                logger.debug(f"Embedding created for: {item_path} at {embedding_file_path}")
+                try:
+                    embedding = get_embedding(client, chunk, model=EMBEDDING_MODEL)
+                    embeddings.append(embedding)
 
-            except openai.BadRequestError as e:
-                logger.error(f"Bad request to OpenAI API: {e}")
-            except openai.APIError as e:
-                logger.error(f"OpenAI API error: {e}")
-            except Exception as e:  # Catch-all for other errors
-                logger.error(f"Unexpected error while creating embedding: {e}")
-                raise e
+                except openai.BadRequestError as e:
+                    stats['errors-bad-requests'] += 1
+                    logger.error(f"Bad request to OpenAI API: {e}")
+                except openai.APIError as e:
+                    stats['errors-api'] += 1
+                    logger.error(f"OpenAI API error: {e}")
+                except Exception as e:  # Catch-all for other errors
+                    stats['errors-other'] += 1
+                    logger.error(f"Unexpected error while creating embedding: {e}")
+                    raise e
+
+            # Save the embedding in a pickle file
+            with open(embeddings_file_path, 'wb') as f:
+                pickle.dump(embeddings, f)
+
+            stats['files-embedded'] += 1
+
+            logger.debug(f"Embeddings created for: {item_path} at {embeddings_file_path}")
         else:
             logger.debug(f"Skipping embedding generation for: {item_path} (already exists). "
                          "Use parameter -o to regenerate.")
 
     ctr += 1
 
-stats['total-files-processed'] = ctr - 1
+stats['files-processed'] = ctr - 1
 
-total_price = tokens_price(stats['total-tokens'], PRICE_PER_MEGA_TOKENS)
-logger.info(f"Total tokens: {stats['total-tokens']:,} -> price: {total_price:,} USD")
+total_price_unsplitted = tokens_price(stats['tokens-unsplitted'], PRICE_PER_MEGA_TOKENS)
+stats['price-unsplitted'] = total_price_unsplitted
+
+total_price_splitted = tokens_price(stats['tokens-splitted'], PRICE_PER_MEGA_TOKENS)
+stats['price-splitted'] = total_price_splitted
+
+logger.info(f"Total tokens: {stats['tokens-unsplitted']:,} -> price: {total_price_unsplitted:,} USD")
+logger.info(f"Total tokens (splitted): {stats['tokens-splitted']:,} -> price: {total_price_splitted:,} USD")
+
+overhead = total_price_splitted - total_price_unsplitted
+stats['price-overhead'] = overhead
+logger.info(f"Overhead: {overhead:,} USD")
 
 df = pd.DataFrame(df_token_data)
 
@@ -161,8 +215,6 @@ pickle.dump(df, open(pickle_df_path, "wb"))
 
 csv_path = os.path.join(ANALYTICS_PATH, "tokens.csv")
 df.to_csv(csv_path, index=False)
-
-stats['total-price'] = total_price
 
 logger.info('Done')
 

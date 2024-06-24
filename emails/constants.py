@@ -11,13 +11,20 @@ EMAIL_EXTENSION = 'txt'
 METADATA_EXTENSION = 'json'
 
 # Filename extension of embedding files.
-EMBEDDING_EXTENSION = 'pkl'
+EMBEDDINGS_EXTENSION = 'pkl'
 
 # Embedding model to use.
 EMBEDDING_MODEL = 'text-embedding-3-large'
 
+# Maximum limit remote API can offer.
+EMBEDDING_API_MAX_TOKENS = 8192
+
 # Maximum chunk size per embedding.
-EMBEDDING_CHUNK_SIZE = 8192  # NOTE: OpenAI limit is 8192 tokens.
+# Please mind the EMBEDDING_API_MAX_TOKENS.
+EMBEDDING_CHUNK_SIZE_TOKENS = 512
+
+# Overlap between chunks.
+EMBEDDING_CHUNK_OVERLAP_TOKENS = 128
 
 # Vector database collection name.
 EMAIL_COLLECTION_NAME = "emails"
