@@ -1,3 +1,9 @@
+# Display currency. Has impact only on the display.
+CCY = 'USD'
+
+# Price per million tokens.
+CCY_PRICE_PER_MIL_TOKENS = 0.13
+
 # Mind the gitignore file if you change this.
 ANALYTICS_PATH = "./analytics"
 

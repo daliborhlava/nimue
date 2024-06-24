@@ -23,6 +23,7 @@ from shared import detect_encoding, init_logger
 from sharedai import num_tokens_from_string, tokens_price, get_embedding
 
 from constants import (
+    CCY, CCY_PRICE_PER_MIL_TOKENS,
     ANALYTICS_PATH, EMBEDDINGS_EXTENSION,
     EMBEDDING_API_MAX_TOKENS,
     EMBEDDING_MODEL, EMBEDDING_CHUNK_SIZE_TOKENS, EMBEDDING_CHUNK_OVERLAP_TOKENS
@@ -41,8 +42,10 @@ parser = argparse.ArgumentParser(description="Nimue Email Embedder")
 parser.add_argument("-e", "--embed", help="Perform the embedding", action="store_true")
 parser.add_argument("-o", "--overwrite", help="If embedding file already exists, regenerate it",
                     action="store_true")
-parser.add_argument("-p", "--price-per-mil-tokens", help="Price for embedding 1 million tokens (default 0.13 USD)",
-                    type=float, default=0.13)
+parser.add_argument("-p", "--price-per-mil-tokens",
+                    help=f"Price in {CCY} for embedding 1 million tokens " 
+                    f"(default {CCY_PRICE_PER_MIL_TOKENS} {CCY})",
+                    type=float, default=CCY_PRICE_PER_MIL_TOKENS)
 parser.add_argument("-l", "--limit", help="Maximum files to process (default 0=unlimited)",
                     type=int, default=0)
 args = parser.parse_args()
@@ -201,12 +204,12 @@ stats['price-unsplitted'] = total_price_unsplitted
 total_price_splitted = tokens_price(stats['tokens-splitted'], PRICE_PER_MEGA_TOKENS)
 stats['price-splitted'] = total_price_splitted
 
-logger.info(f"Total tokens: {stats['tokens-unsplitted']:,} -> price: {total_price_unsplitted:,} USD")
-logger.info(f"Total tokens (splitted): {stats['tokens-splitted']:,} -> price: {total_price_splitted:,} USD")
+logger.info(f"Total tokens: {stats['tokens-unsplitted']:,} -> price: {total_price_unsplitted:,} {CCY}")
+logger.info(f"Total tokens (splitted): {stats['tokens-splitted']:,} -> price: {total_price_splitted:,} {CCY}")
 
 overhead = total_price_splitted - total_price_unsplitted
 stats['price-overhead'] = overhead
-logger.info(f"Overhead: {overhead:,} USD")
+logger.info(f"Overhead: {overhead:,} {CCY}")
 
 df = pd.DataFrame(df_token_data)
 

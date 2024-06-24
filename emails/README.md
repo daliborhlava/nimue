@@ -24,8 +24,6 @@
 
 
 ## TODO
-- chunks need to be stored separately with embeddings so that they can be uploaded together with vectors representing them
--- metadata chunk count?
 - API search
 - simple search UI
 - API LLM-based to properly construct the query
