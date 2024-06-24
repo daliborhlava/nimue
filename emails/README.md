@@ -4,6 +4,11 @@
 3. Run embed
 4. Run load
 
+## Usage
+1. Have emails ingested
+2. Use search interface (email semantic search only)
+3. Interact with core
+
 
 ### How To
 - Optional|Sourcing - Obtain mbox (e.g. from Google takeout)
