@@ -25,6 +25,7 @@
 
 ## TODO
 - completely refactored folder structure -> make it work again
+--> change the import logic to import relative to root (nested relative imports suffer otherwise) 
 
 FOR SECRETS
 ....

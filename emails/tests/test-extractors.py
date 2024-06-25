@@ -1,5 +1,14 @@
+import sys
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_path = os.path.join(script_dir, "..")
+sys.path.append(root_path)
+
 import unittest
-from extractors import extract_mail_info_from_name_method1, UNKNOWN_VALUE
+
+from ingestion.extractors import extract_mail_info_from_name_method1
+from shared.constants import UNKNOWN_VALUE
 
 class TestProcessFunction(unittest.TestCase):
     def test_valid_email_name(self):
