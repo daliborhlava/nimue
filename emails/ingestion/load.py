@@ -12,7 +12,7 @@ import chromadb
 from chromadb import Settings
 
 from shared import init_logger, detect_encoding
-from constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
+from emails.shared.constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
 
 logger = init_logger('load')
 

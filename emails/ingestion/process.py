@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 
@@ -12,8 +13,12 @@ import pandas as pd
 
 from tqdm import tqdm
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+shared_path = os.path.join(script_dir, "..", "shared")
+sys.path.append(shared_path)
+
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
-from shared import init_logger
+from helpers import init_logger
 from constants import ANALYTICS_PATH, EMAIL_EXTENSION, METADATA_EXTENSION
 
 logger = init_logger('process')
@@ -31,7 +36,9 @@ if skip_first_n_files > 0:
                    "Metadata construction will not be complete!")
 
 secrets_file_name = 'project.secrets'
-with open(secrets_file_name, "r") as secrets_file:
+secrets_path = os.path.join(script_dir, "..", secrets_file_name)
+
+with open(secrets_path, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
 source_dir = secrets_data["source-dir"]

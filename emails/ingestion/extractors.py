@@ -6,7 +6,8 @@ import re
 import hashlib
 import os
 
-from shared import detect_encoding
+# Assumes that caller script enhances the path.
+from helpers import detect_encoding
 from constants import UNKNOWN_VALUE
 
 KEY_MAX_LENGTH = 15  # Maximum length of a key in the pseudoheader.

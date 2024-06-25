@@ -9,7 +9,7 @@ from chromadb import Settings
 
 import openai
 
-from constants import EMAIL_COLLECTION_NAME, EMBEDDING_MODEL
+from emails.shared.constants import EMAIL_COLLECTION_NAME, EMBEDDING_MODEL
 
 default_results = 3
 
