@@ -1,3 +1,5 @@
+import sys
+import os
 from pathlib import Path
 
 import pickle
@@ -11,8 +13,12 @@ import chromadb
 
 from chromadb import Settings
 
-from shared import init_logger, detect_encoding
-from emails.shared.constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
+script_dir = os.path.dirname(os.path.abspath(__file__))
+shared_path = os.path.join(script_dir, "..", "shared")
+sys.path.append(shared_path)
+
+from helpers import init_logger, detect_encoding
+from constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
 
 logger = init_logger('load')
 
@@ -24,7 +30,9 @@ args = parser.parse_args()
 LIMIT_FILES = args.limit
 
 secrets_file_name = 'project.secrets'
-with open(secrets_file_name, "r") as secrets_file:
+secrets_path = os.path.join(script_dir, "..", secrets_file_name)
+
+with open(secrets_path, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
 vector_db_host = secrets_data["vector-db-host"]
