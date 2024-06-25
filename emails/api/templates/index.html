@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <input type="text" id="query" placeholder="Enter search query" />
+    <button onclick="search()">Search</button>
+    <div id="results"></div>
+    <script>
+        function search() {
+            var query = document.getElementById('query').value;
+            fetch('/search?query=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    var results = document.getElementById('results');
+                    results.innerHTML = '';
+                    data.forEach(doc => {
+                        var div = document.createElement('div');
+                        div.textContent = doc.text;
+                        results.appendChild(div);
+                    });
+                });
+        }
+    </script>
+</body>
+</html>

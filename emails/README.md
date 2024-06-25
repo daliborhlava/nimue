@@ -24,6 +24,18 @@
 
 
 ## TODO
+- completely refactored folder structure -> make it work again
+
+FOR SECRETS
+....
+
+FOR SHARED
+script_dir = os.path.dirname(os.path.abspath(__file__))
+shared_path = os.path.join(script_dir, "..", "shared")
+import sys
+sys.path.append(shared_path)
+
+
 - API search
 - simple search UI
 - API LLM-based to properly construct the query
