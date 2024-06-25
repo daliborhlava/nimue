@@ -1,3 +1,4 @@
+import sys
 import os
 
 from pathlib import Path
@@ -19,10 +20,14 @@ import pandas as pd
 
 import json
 
-from shared import detect_encoding, init_logger
-from sharedai import num_tokens_from_string, tokens_price, get_embedding
+script_dir = os.path.dirname(os.path.abspath(__file__))
+shared_path = os.path.join(script_dir, "..", "shared")
+sys.path.append(shared_path)
 
-from emails.shared.constants import (
+from helpers import detect_encoding, init_logger
+from ai import num_tokens_from_string, tokens_price, get_embedding
+
+from constants import (
     CCY, CCY_PRICE_PER_MIL_TOKENS,
     ANALYTICS_PATH, EMBEDDINGS_EXTENSION,
     EMBEDDING_API_MAX_TOKENS,
@@ -71,7 +76,9 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 
 secrets_file_name = 'project.secrets'
-with open(secrets_file_name, "r") as secrets_file:
+secrets_path = os.path.join(script_dir, "..", secrets_file_name)
+
+with open(secrets_path, "r") as secrets_file:
     secrets_data = json.load(secrets_file)
 
 stats = {
