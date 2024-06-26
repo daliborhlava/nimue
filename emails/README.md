@@ -9,7 +9,6 @@
 2. Use search interface (email semantic search only)
 3. Interact with core
 
-
 ### How To
 - Optional|Sourcing - Obtain mbox (e.g. from Google takeout)
 - Optional|Sourcing - Use tool to convert mbox into email per file (e.g. https://www.recoverytools.com/mbox/migrator/)
@@ -24,8 +23,6 @@
 
 
 ## TODO
-- API search
-- simple search UI
 - API LLM-based to properly construct the query
 
 
