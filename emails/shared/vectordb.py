@@ -3,6 +3,8 @@ from typing import Callable, Any
 import chromadb
 from chromadb import Settings
 
+# ABC could be added and this could be just one of the implementations
+# if ever more than this one is needed.
 class VectorStore:
     def __init__(self, host: str, port: int,
                  embedding_function: Callable[..., Any],
@@ -18,7 +20,16 @@ class VectorStore:
                                 embedding_function=embedding_function
                             )
         
-    def query_vector_db(self, query: str, results: int) -> dict:
+    def drop_collection(self):
+        self.client.delete_collection(name=self.collection.name)
+
+
+    def add_single(self, id: str, embedding: Any, metadata: dict, document: str):
+        self.collection.add(ids=[id], embeddings=[embedding],
+                            metadatas=[metadata], documents=[document])
+
+        
+    def query(self, query: str, results: int) -> dict:
         results = self.collection.query(
             query_texts=query,
             n_results=results,

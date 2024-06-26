@@ -44,13 +44,13 @@ embedding_function = embedding_functions.OpenAIEmbeddingFunction(
 vector_store = VectorStore(vector_db_host, vector_db_port,
                            embedding_function, EMAIL_COLLECTION_NAME)
 
-results = vector_store.query_vector_db(query, results)
+results = vector_store.query(query, results)
 
 if len(results) == 0:  # Check if any results were found
     print(f"No results found for query: '{query}'")
     sys.exit(-1)
 
-for i,result in enumerate(results):
+for i, result in enumerate(results):
 
     print(f"\nResult {i+1}:")
     print("-" * 10)  # Separator

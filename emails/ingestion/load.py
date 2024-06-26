@@ -9,15 +9,12 @@ import json
 import argparse
 from tqdm import tqdm
 
-import chromadb
-
-from chromadb import Settings
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.join(script_dir, "..")
 sys.path.append(root_path)
 
 from shared.helpers import init_logger, detect_encoding
+from shared.vectordb import VectorStore
 from shared.constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
 
 logger = init_logger('load')
@@ -38,6 +35,9 @@ with open(secrets_path, "r") as secrets_file:
 vector_db_host = secrets_data["vector-db-host"]
 vector_db_port = secrets_data["vector-db-port"]
 
+vector_store = VectorStore(vector_db_host, vector_db_port,
+                           None, EMAIL_COLLECTION_NAME)
+
 stats = {
     'total-files-to-process': -1,
     'total-files-processed': -1,
@@ -47,13 +47,8 @@ stats = {
 
 start_time = time.perf_counter()
 
-settings = Settings(allow_reset=True, anonymized_telemetry=False)
-client = chromadb.HttpClient(host=vector_db_host, port=vector_db_port, settings=settings)
-
 # This can delete the collection if needed.
-#client.delete_collection(name=EMAIL_COLLECTION_NAME)
-
-collection = client.get_or_create_collection(name=EMAIL_COLLECTION_NAME)
+#vector_store.delete_collection()
 
 processed_dir = secrets_data["processed-dir"]
 file_list = [f for f in Path(processed_dir).glob(f'**/*.{EMBEDDINGS_EXTENSION}')]
@@ -102,10 +97,9 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
         metadata_chunk = metadata.copy()
         metadata_chunk['chunk'] = embedding_no
         metadata_chunk['total_chunks'] = len(chunks_embeddings)
-
-        # Could be done in batch, but for now we do it one by one.
-        collection.add(ids=[f"{hsh}-{embedding_no}"], embeddings=[embedding],
-                       metadatas=[metadata_chunk], documents=[chunk])
+        
+        vector_store.add_single(id=f"{hsh}-{embedding_no}", embedding=embedding,
+                       metadata=metadata_chunk, document=chunk)
 
         embedding_no += 1
         stats['documents-inserted'] += 1
