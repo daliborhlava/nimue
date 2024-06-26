@@ -26,6 +26,7 @@
 ## TODO
 - API search
 - simple search UI
+--- should there be a class for vectordb; shared between cli and api? and ingest.. probably yes. if nothing else then at least to allow replacement.
 - API LLM-based to properly construct the query
 
 

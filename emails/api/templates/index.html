@@ -5,13 +5,46 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         #results { margin-top: 20px; }
+
+        #results .result {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #results .result .results-text {
+            font-weight: bold;
+        }
+
+        #results .result .results-metadata {
+            color: #666;
+        }
+
+        .result-counter {
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 5px;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
-    <input type="text" id="query" placeholder="Enter search query" />
-    <button onclick="search()">Search</button>
+    <form id="searchForm">
+        <input type="text" id="query" placeholder="Enter search query" />
+        <br/><br/>
+        <button type="submit" onclick="search()">Search</button>
+    </form>
     <div id="results"></div>
     <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            search();
+        });
+
         function search() {
             var query = document.getElementById('query').value;
             fetch('/search?query=' + encodeURIComponent(query))
@@ -19,9 +52,36 @@
                 .then(data => {
                     var results = document.getElementById('results');
                     results.innerHTML = '';
+
+                    if (data.length === 0) {
+                        var noResultDiv = document.createElement('div');
+                        noResultDiv.classList.add('result-counter');
+                        noResultDiv.textContent = "No Result";
+                        results.appendChild(noResultDiv);
+                        return;
+                    }
+
+                    let counter = 1;
                     data.forEach(doc => {
+                        var counterDiv = document.createElement('div');
+                        counterDiv.classList.add('result-counter');
+                        counterDiv.textContent = `Result ${counter++}`; 
+
                         var div = document.createElement('div');
-                        div.textContent = doc.text;
+                        div.classList.add('result');
+
+                        var divText = document.createElement('div');
+                        divText.classList.add('results-text');
+                        divText.textContent = doc.text;
+
+                        var divMetadata = document.createElement('div');
+                        divMetadata.classList.add('results-metadata');
+                        divMetadata.textContent = JSON.stringify(doc.metadata, null, 2);
+
+                        div.appendChild(divText);
+                        div.appendChild(divMetadata);
+
+                        results.appendChild(counterDiv);
                         results.appendChild(div);
                     });
                 });
