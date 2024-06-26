@@ -35,7 +35,7 @@ class VectorStore:
             n_results=results,
 
             # Also available: "embeddings" and others.
-            include=["documents", "metadatas"]
+            include=["documents", "metadatas", "distances"]
         )
 
         # Tranform the results into list of results.
@@ -44,16 +44,21 @@ class VectorStore:
         
         documents = results["documents"][0]
         metadatas = results["metadatas"][0]
+        distances = results["distances"][0]
 
         results_fmt = []
 
         for k,v in enumerate(documents):
-            metadata = metadatas[k]  # Get the corresponding metadata
-            document = documents[k]  # Get the corresponding document
+
+            # Get the corresponding items.
+            metadata = metadatas[k]
+            document = documents[k]
+            distance = distances[k]
 
             results_fmt.append({
-                "document": document,
-                "metadata": metadata
+                'document': document,
+                "metadata": metadata,
+                'distance': distance
             })
     
         return results_fmt

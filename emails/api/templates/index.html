@@ -30,11 +30,22 @@
             border-radius: 5px;
             display: inline-block;
         }
+
+        .distance-display {
+            font-weight: normal;
+            font-size: 1em;
+            color: #666;
+            margin-left: 5px;
+            display: inline-block;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
     </style>
 </head>
 <body>
     <form id="searchForm">
-        <input type="text" id="query" placeholder="Enter search query" />
+        <input type="text" id="query" size="100" placeholder="Enter search query" />
         <br/><br/>
         <button type="submit" onclick="search()">Search</button>
     </form>
@@ -47,7 +58,7 @@
 
         function search() {
             var query = document.getElementById('query').value;
-            fetch('/search?query=' + encodeURIComponent(query))
+            fetch('/api/search?query=' + encodeURIComponent(query))
                 .then(response => response.json())
                 .then(data => {
                     var results = document.getElementById('results');
@@ -65,14 +76,16 @@
                     data.forEach(doc => {
                         var counterDiv = document.createElement('div');
                         counterDiv.classList.add('result-counter');
-                        counterDiv.textContent = `Result ${counter++}`; 
+
+                        let formattedDistance = doc.distance.toFixed(2);
+                        counterDiv.innerHTML = `Result ${counter++} <span class="distance-display" title="Distance">${formattedDistance}</span>`; 
 
                         var div = document.createElement('div');
                         div.classList.add('result');
 
-                        var divText = document.createElement('div');
+                        var divText = document.createElement('pre');
                         divText.classList.add('results-text');
-                        divText.textContent = doc.text;
+                        divText.textContent = doc.document;
 
                         var divMetadata = document.createElement('div');
                         divMetadata.classList.add('results-metadata');

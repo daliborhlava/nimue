@@ -51,7 +51,6 @@ if len(results) == 0:  # Check if any results were found
     sys.exit(-1)
 
 for i, result in enumerate(results):
-
     print(f"\nResult {i+1}:")
     print("-" * 10)  # Separator
     print("Document Chunk:")
