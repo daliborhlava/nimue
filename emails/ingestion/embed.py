@@ -21,13 +21,13 @@ import pandas as pd
 import json
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-shared_path = os.path.join(script_dir, "..", "shared")
-sys.path.append(shared_path)
+root_path = os.path.join(script_dir, "..")
+sys.path.append(root_path)
 
-from helpers import detect_encoding, init_logger
-from ai import num_tokens_from_string, tokens_price, get_embedding
+from shared.helpers import detect_encoding, init_logger
+from shared.ai import num_tokens_from_string, tokens_price, get_embedding
 
-from constants import (
+from shared.constants import (
     CCY, CCY_PRICE_PER_MIL_TOKENS,
     ANALYTICS_PATH, EMBEDDINGS_EXTENSION,
     EMBEDDING_API_MAX_TOKENS,

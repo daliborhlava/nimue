@@ -14,11 +14,11 @@ import chromadb
 from chromadb import Settings
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-shared_path = os.path.join(script_dir, "..", "shared")
-sys.path.append(shared_path)
+root_path = os.path.join(script_dir, "..")
+sys.path.append(root_path)
 
-from helpers import init_logger, detect_encoding
-from constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
+from shared.helpers import init_logger, detect_encoding
+from shared.constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
 
 logger = init_logger('load')
 

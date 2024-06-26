@@ -14,12 +14,12 @@ import pandas as pd
 from tqdm import tqdm
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-shared_path = os.path.join(script_dir, "..", "shared")
-sys.path.append(shared_path)
+root_path = os.path.join(script_dir, "..")
+sys.path.append(root_path)
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
-from helpers import init_logger
-from constants import ANALYTICS_PATH, EMAIL_EXTENSION, METADATA_EXTENSION
+from shared.helpers import init_logger
+from shared.constants import ANALYTICS_PATH, EMAIL_EXTENSION, METADATA_EXTENSION
 
 logger = init_logger('process')
 
