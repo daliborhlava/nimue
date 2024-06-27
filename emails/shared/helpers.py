@@ -1,10 +1,16 @@
+import os
+
 import chardet
 import logging
 
 
-def init_logger(logger_name: str = None) -> logging.Logger:
+def init_logger(logger_name: str = None, logger_dir: str = None) -> logging.Logger:
     if logger_name is None:
         logger_name = __name__
+
+    logger_path = f'{logger_name}.log'
+    if logger_dir is not None:
+        logger_path = os.path.join(logger_dir, logger_path)
 
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
@@ -16,7 +22,7 @@ def init_logger(logger_name: str = None) -> logging.Logger:
     console_handler.setFormatter(formatter)
 
     # Might need to be changed if emails are in differnet format.
-    file_handler = logging.FileHandler(f'{logger_name}.log', encoding='UTF-8 SIG', mode='w')
+    file_handler = logging.FileHandler(logger_path, encoding='UTF-8 SIG', mode='w')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

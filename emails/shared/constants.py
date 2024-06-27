@@ -10,7 +10,7 @@ ANALYTICS_DIR = "analytics/data"
 
 # Logging directory.
 # Relative to the project root.
-LOG_PATH = "logs"
+LOGS_DIR = "logs"
 
 # Placeholder for unknown values.
 UNKNOWN_VALUE = '<missing>'

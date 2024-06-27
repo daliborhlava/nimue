@@ -19,9 +19,9 @@ sys.path.append(root_path)
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 from shared.helpers import init_logger
-from shared.constants import ANALYTICS_DIR, EMAIL_EXTENSION, METADATA_EXTENSION
+from shared.constants import ANALYTICS_DIR, EMAIL_EXTENSION, METADATA_EXTENSION, LOGS_DIR
 
-logger = init_logger('process')
+logger = init_logger('process', logger_dir=os.path.join(root_path, LOGS_DIR))
 
 parser = argparse.ArgumentParser(description="Nimue Email Processor")
 parser.add_argument("-s", "--skip", help="Skip first N files", type=int, default=0)

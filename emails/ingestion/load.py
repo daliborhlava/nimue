@@ -15,9 +15,13 @@ sys.path.append(root_path)
 
 from shared.helpers import init_logger, detect_encoding
 from shared.vectordb import VectorStore
-from shared.constants import EMAIL_COLLECTION_NAME, EMAIL_EXTENSION, METADATA_EXTENSION, EMBEDDINGS_EXTENSION
+from shared.constants import (
+    EMAIL_COLLECTION_NAME, EMAIL_EXTENSION,
+    METADATA_EXTENSION, EMBEDDINGS_EXTENSION,
+    LOGS_DIR
+)
 
-logger = init_logger('load')
+logger = init_logger('load', logger_dir=os.path.join(root_path, LOGS_DIR))
 
 parser = argparse.ArgumentParser(description="Nimue Email Loader")
 parser.add_argument("-l", "--limit", help="Maximum files to process (default 0=unlimited)",
