@@ -23,6 +23,8 @@
 
 
 ## TODO
+- run the full load
+- think through the database aspect; should that be done as part of process?
 - proper email db with full sizes (whole email embedding? -- do summary then embedding? - that might be pricy, count tokens for "smaller" models, alt: run local?)
 - python execution / SQL execution on emails? -- start with sql lite?
 - email search api (non semantic, regex)

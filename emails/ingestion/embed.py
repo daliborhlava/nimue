@@ -164,7 +164,7 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
 
     # Implement the making of embeding
     # after testing it not exists
-    # or regen and owerwriting if needed
+    # or regen and owerwriting if needed.
     if PERFORM_EMBEDDING:
         embeddings_file_path = item.with_suffix(f".{EMBEDDINGS_EXTENSION}").as_posix()
 
