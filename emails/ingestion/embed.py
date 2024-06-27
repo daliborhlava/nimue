@@ -29,7 +29,7 @@ from shared.ai import num_tokens_from_string, tokens_price, get_embedding
 
 from shared.constants import (
     CCY, CCY_PRICE_PER_MIL_TOKENS,
-    ANALYTICS_PATH, EMBEDDINGS_EXTENSION,
+    ANALYTICS_DIR, EMBEDDINGS_EXTENSION,
     EMBEDDING_API_MAX_TOKENS,
     EMBEDDING_MODEL, EMBEDDING_CHUNK_SIZE_TOKENS, EMBEDDING_CHUNK_OVERLAP_TOKENS
 )
@@ -215,19 +215,19 @@ stats['price-unsplitted'] = total_price_unsplitted
 total_price_splitted = tokens_price(stats['tokens-splitted'], PRICE_PER_MEGA_TOKENS)
 stats['price-splitted'] = total_price_splitted
 
-logger.info(f"Total tokens: {stats['tokens-unsplitted']:,} -> price: {total_price_unsplitted:,} {CCY}")
-logger.info(f"Total tokens (splitted): {stats['tokens-splitted']:,} -> price: {total_price_splitted:,} {CCY}")
+logger.info(f"Total tokens: {stats['tokens-unsplitted']:,} -> price: {total_price_unsplitted:.2f} {CCY}")
+logger.info(f"Total tokens (splitted): {stats['tokens-splitted']:,} -> price: {total_price_splitted:.2f} {CCY}")
 
 overhead = total_price_splitted - total_price_unsplitted
 stats['price-overhead'] = overhead
-logger.info(f"Overhead: {overhead:,} {CCY}")
+logger.info(f"Overhead: {overhead:.2f} {CCY}")
 
 df = pd.DataFrame(df_token_data)
 
-pickle_df_path = os.path.join(ANALYTICS_PATH, "tokens_df.pkl")
+pickle_df_path = os.path.join(root_path, ANALYTICS_DIR, "tokens_df.pkl")
 pickle.dump(df, open(pickle_df_path, "wb"))
 
-csv_path = os.path.join(ANALYTICS_PATH, "tokens.csv")
+csv_path = os.path.join(root_path, ANALYTICS_DIR, "tokens.csv")
 df.to_csv(csv_path, index=False)
 
 logger.info('Done')

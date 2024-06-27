@@ -19,7 +19,7 @@ sys.path.append(root_path)
 
 from extractors import process, ProcessorEmptyFileException, MalformedPseudoheaderException
 from shared.helpers import init_logger
-from shared.constants import ANALYTICS_PATH, EMAIL_EXTENSION, METADATA_EXTENSION
+from shared.constants import ANALYTICS_DIR, EMAIL_EXTENSION, METADATA_EXTENSION
 
 logger = init_logger('process')
 
@@ -123,30 +123,30 @@ for item in tqdm(sorted_file_list, desc="Processing files"):
 stats['metadata-files'] = len(pd_data_list)
 stats['metadata-files-with-duplicates'] = len(pd_data_list_with_duplicates)
 
-pickle_list_path = os.path.join(ANALYTICS_PATH, "results_list.pkl")
-pickle_list_with_duplicates_path = os.path.join(ANALYTICS_PATH, "results_list_with_duplicates.pkl")
+pickle_list_path = os.path.join(root_path, ANALYTICS_DIR, "results_list.pkl")
+pickle_list_with_duplicates_path = os.path.join(root_path, ANALYTICS_DIR, "results_list_with_duplicates.pkl")
 
 pickle.dump(pd_data_list, open(pickle_list_path, "wb"))
 pickle.dump(pd_data_list_with_duplicates, open(pickle_list_with_duplicates_path, "wb"))
 
-pickle_df_path = os.path.join(ANALYTICS_PATH, "results_df.pkl")
-pickle_df_with_duplicates_path = os.path.join(ANALYTICS_PATH, "results_df_with_duplicates.pkl")
+pickle_df_path = os.path.join(root_path, ANALYTICS_DIR, "results_df.pkl")
+pickle_df_with_duplicates_path = os.path.join(root_path, ANALYTICS_DIR, "results_df_with_duplicates.pkl")
 
 pickle.dump(pd.DataFrame(pd_data_list), open(pickle_df_path, "wb"))
 pickle.dump(pd.DataFrame(pd_data_list_with_duplicates), open(pickle_df_with_duplicates_path, "wb"))
 
-csv_path = os.path.join(ANALYTICS_PATH, "results.csv")
-csv_with_duplicates_path = os.path.join(ANALYTICS_PATH, "results_with_duplicates.csv")
+csv_path = os.path.join(root_path, ANALYTICS_DIR, "results.csv")
+csv_with_duplicates_path = os.path.join(root_path, ANALYTICS_DIR, "results_with_duplicates.csv")
 
 pd.DataFrame(pd_data_list).to_csv(csv_path, index=False)
 pd.DataFrame(pd_data_list_with_duplicates).to_csv(csv_with_duplicates_path, index=False)
 
 # Store lists of files with problems.
-with open(os.path.join(ANALYTICS_PATH, "malformed_pseudoheader_list.log"), "w") as f:
+with open(os.path.join(root_path, ANALYTICS_DIR, "malformed_pseudoheader_list.txt"), "w") as f:
     for item in malformed_pseudoheader_list:
         f.write(f"{item}\n")
 
-with open(os.path.join(ANALYTICS_PATH, "empty_files_list.log"), "w") as f:
+with open(os.path.join(root_path, ANALYTICS_DIR, "empty_files_list.txt"), "w") as f:
     for item in empty_files_list:
         f.write(f"{item}\n")
 

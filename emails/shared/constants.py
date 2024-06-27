@@ -5,7 +5,12 @@ CCY = 'USD'
 CCY_PRICE_PER_MIL_TOKENS = 0.13
 
 # Mind the gitignore file if you change this.
-ANALYTICS_PATH = "./analytics"
+# Relative to the project root.
+ANALYTICS_DIR = "analytics/data"
+
+# Logging directory.
+# Relative to the project root.
+LOG_PATH = "logs"
 
 # Placeholder for unknown values.
 UNKNOWN_VALUE = '<missing>'

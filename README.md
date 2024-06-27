@@ -7,6 +7,7 @@ This is the high level "roadmap" written in a "braintorming" fashion, not all sh
 - further onboard of additional modules
   - data
     - calendar
+    - bank exports (revolut) as CSV/Excel and dynamic code execution (Pandas)
     - location
     - regular files (drop-in directory for indexing)
     - notes

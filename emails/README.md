@@ -23,7 +23,12 @@
 
 
 ## TODO
-- API LLM-based to properly construct the query
+- proper email db with full sizes (whole email embedding? -- do summary then embedding? - that might be pricy, count tokens for "smaller" models, alt: run local?)
+- python execution / SQL execution on emails? -- start with sql lite?
+- email search api (non semantic, regex)
+- similar email api
+- API LLM-based to properly construct the query; or gover from external agent? no lets have a hierrarchy of agents to test how that works
+
 
 
 ## Long-Term Features
