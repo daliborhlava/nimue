@@ -35,7 +35,7 @@ from shared.constants import (
     LOGS_DIR
 )
 
-logger = init_logger('embed', logger_dir=os.path.join(root_path, LOGS_DIR)
+logger = init_logger('embed', logger_dir=os.path.join(root_path, LOGS_DIR))
 
 if (EMBEDDING_CHUNK_SIZE_TOKENS > EMBEDDING_API_MAX_TOKENS or
     EMBEDDING_CHUNK_OVERLAP_TOKENS > EMBEDDING_CHUNK_SIZE_TOKENS):
