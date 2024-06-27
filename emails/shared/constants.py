@@ -36,6 +36,3 @@ EMBEDDING_CHUNK_SIZE_TOKENS = 512
 
 # Overlap between chunks.
 EMBEDDING_CHUNK_OVERLAP_TOKENS = 128
-
-# Vector database collection name.
-EMAIL_COLLECTION_NAME = "emails"
